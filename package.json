@@ -1,0 +1,48 @@
+{
+  "name": "openapi-factory",
+  "version": "0.0.0",
+  "description": ".",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "mocha tests/**/*.js -R spec"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "travis-build-tools": "~1.0",
+    "chai": "^3.5.0",
+    "esprima": "^2.7.2",
+    "glob": "^5.0.15",
+    "mocha": "^2.4.5",
+    "sinon": "^1.17.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wparad/node-openapi-factory.git"
+  },
+  "keywords": [
+    "aws",
+    "cloudfront",
+    "package creation",
+    "microservice",
+    "api gateway",
+    "serverless",
+    "api gateway",
+    "aws api gateway",
+    "lambda",
+    "aws lambda",
+    "api",
+    "openapi",
+    "api factory",
+    "openapi factory"
+  ],
+  "author": "Warren Parad <wparad@gmail.com> (http://wparad.github.io)",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/wparad/node-openapi-factory/issues"
+  },
+  "homepage": "https://github.com/wparad/node-openapi-factory#readme"
+}
