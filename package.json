@@ -1,7 +1,7 @@
 {
   "name": "openapi-factory",
   "version": "0.0.0",
-  "description": ".",
+  "description": "Build API's and serverless code using node and first class functions.",
   "main": "index.js",
   "files": [
     "index.js"
