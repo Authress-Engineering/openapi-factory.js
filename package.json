@@ -9,9 +9,9 @@
   "scripts": {
     "test": "mocha tests/**/*.js -R spec"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "commander": "^2.9.0",
     "travis-build-tools": "~1.0",
     "chai": "^3.5.0",
     "esprima": "^2.7.2",

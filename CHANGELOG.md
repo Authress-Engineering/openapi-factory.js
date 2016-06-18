@@ -1,5 +1,5 @@
 # Change log
-This is the changelog for [AWS Architect](readme.md).
+This is the changelog for [OpenAPI Factory](readme.md).
 
 ## 1.0 ##
-Introduced commandline ruby tool `aws-architect` for configuring a AWS Microservice instance using Cloud Formation and AWS API.
+Created npm library for building apis.
