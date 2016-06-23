@@ -1,6 +1,6 @@
 function Response(body, headers, statusCode) {
 	if (!(this instanceof Response)) {
-		throw new Error('Responses must be instantiated.');
+		return new Response(body, headers, statusCode);
 	}
 
 	this.body = body || {};

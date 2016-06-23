@@ -34,7 +34,7 @@ describe('index.js', function() {
 			try {
 				var Api = require('../index');
 				var api = new Api();
-				assert(api.AuthorizerFunc());
+				assert(api.Authorizer.AuthorizerFunc());
 			}
 			catch(e) {
 				console.error(e);
@@ -45,7 +45,8 @@ describe('index.js', function() {
 			try {
 				var Api = require('../index');
 				var api = new Api();
-				var result = api.Authorizer(() => false);
+				api.SetAuthorizer(() => false);
+				var result = api.Authorizer.AuthorizerFunc();
 				//result should be false;
 				assert(!result);
 			}
@@ -65,12 +66,10 @@ describe('index.js', function() {
 					return new Api.Response(expectedResult);
 				});
 
-				api.handler({
-					api: {
-						method: 'GET',
-						path: '/test'
-					}
-				}, null, x => x)
+				api.handler({}, {
+					httpMethod: 'GET',
+					resourcePath: '/test'
+				}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -96,12 +95,10 @@ describe('index.js', function() {
 					return Promise.resolve(new Api.Response(expectedResult));
 				});
 
-				api.handler({
-					api: {
-						method: 'GET',
-						path: '/test'
-					}
-				}, null, x => x)
+				api.handler({}, {
+					httpMethod: 'GET',
+					resourcePath: '/test'
+				}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -127,12 +124,10 @@ describe('index.js', function() {
 					return Promise.reject(expectedResult);
 				});
 
-				api.handler({
-					api: {
-						method: 'GET',
-						path: '/test'
-					}
-				}, null, x => x)
+				api.handler({}, {
+					httpMethod: 'GET',
+					resourcePath: '/test'
+				}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -158,21 +153,17 @@ describe('index.js', function() {
 					throw expectedResult;
 				});
 
-				api.handler({
-					api: {
-						method: 'GET',
-						path: '/test'
-					}
-				}, null, x => x)
+				api.handler({}, {
+					httpMethod: 'GET',
+					resourcePath: '/test'
+				}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
 					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
 
-					assert.deepEqual(output.body.data, expectedResult, `Output data does not match expected.`);
+					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
-					assert.strictEqual(output.body.error, 'Failed executing lambda function.', 'Method should be GET');
-					assert.deepEqual(output.body.request.api, {method: 'GET', path: '/test'}, 'Path should be "GET /test"');
 					done();
 				})
 				.catch(failure => done(failure));

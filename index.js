@@ -6,16 +6,25 @@ function ApiFactory(options, lambdaFilename) {
 	if (!(this instanceof ApiFactory)) {
 		throw new Error('ApiFactory must be instantiated.');
 	}
-	this.AuthorizerFunc = () => true;
+	this.Authorizer = {
+		AuthorizerFunc: () => true,
+		Options: {}
+	};
 	this.Routes = {};
 	this.Configuration = new ApiConfiguration(options, lambdaFilename);
 };
 
 var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
-ApiFactory.prototype.Authorizer = function(authorizerFunc, options) {
+ApiFactory.prototype.SetAuthorizer = function(authorizerFunc, requestAuthorizationHeader, cacheTimeout) {
 	if(!isFunction(authorizerFunc)) { throw new Error('Authorizer Function has not be defined as a function.'); }
-	this.AuthorizerFunc = authorizerFunc;
+	this.Authorizer = {
+		AuthorizerFunc: authorizerFunc,
+		Options: {
+			AuthorizationHeaderName: requestAuthorizationHeader,
+			CacheTimeout: cacheTimeout
+		}
+	};
 };
 
 ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'PATCH'].forEach((verb) => {
@@ -36,6 +45,29 @@ ApiFactory.prototype.Authorizer = function(authorizerFunc, options) {
 
 /* This is the entry point from AWS Lambda. */
 ApiFactory.prototype.handler = function(event, context, callback) {
+	//If this is the authorizer lambda, then call the authorizer
+	if(event.type && event.authorizationToken && event.methodArn) {
+		try {
+			return this.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, context.authorizer.principalId);
+		}
+		catch (exception) {
+			console.log(`Failure to authorize: ${exception.stack || exception} event: ${JSON.stringify(event)} context: ${JSON.stringify(context)}`)
+			return {
+				principalId: context.authorizer.principalId,
+				policyDocument: {
+					Version: '2012-10-17',
+					Statement: [
+						{
+							Action: 'execute-api:Invoke',
+							Effect: 'Deny',
+							Resource: event.methodArn
+						}
+					]
+				}
+			};
+		}
+	}
+
 	if(!callback) {
 		return callback(JSON.stringify({
 			statusCode: 500,
@@ -47,18 +79,7 @@ ApiFactory.prototype.handler = function(event, context, callback) {
 		}));
 	}
 
-	if(!event.api || !event.api.method || !event.api.path) {
-		return callback(JSON.stringify({
-			statusCode: 500,
-			error: 'API Gateway has not been configured to contain api: "method" and "path".',
-			details: {
-				event: event,
-				context: context
-			}
-		}));
-	}
-
-	var lambda = this.Routes[event.api.method][event.api.path].Handler;
+	var lambda = this.Routes[context.httpMethod][context.resourcePath].Handler;
 	if(!lambda) {
 		return callback(JSON.stringify({
 			statusCode: 500,
@@ -71,7 +92,6 @@ ApiFactory.prototype.handler = function(event, context, callback) {
 	}
 
 	var data = {
-		api: event.api,
 		headers: event.headers,
 		body: event.body || {},
 		context: context,
@@ -97,11 +117,7 @@ ApiFactory.prototype.handler = function(event, context, callback) {
 		});
 	}
 	catch (exception) {
-		return Promise.resolve(callback(JSON.stringify(new ApiResponse({
-			error: 'Failed executing lambda function.',
-			request: data,
-			data: exception
-		}, null, 500))));
+		return Promise.resolve(callback(JSON.stringify(new ApiResponse(exception, null, 500))));
 	}
 }
 
