@@ -59,9 +59,10 @@ describe('index.js', function() {
 		it('check call to GET handler', function(done) {
 			try {
 				var expectedResult = {'Value': 5};
-				var api = new (require('../index'))();
+				var Api = require('../index');
+				var api = new Api();
 				api.get('/test', (request) => {
-					return new api.Response(expectedResult);
+					return new Api.Response(expectedResult);
 				});
 
 				api.handler({
@@ -89,9 +90,10 @@ describe('index.js', function() {
 		it('check promise result to GET handler', function(done) {
 			try {
 				var expectedResult = {'Value': 5};
-				var api = new (require('../index'))();
+				var Api = require('../index');
+				var api = new Api();
 				api.get('/test', (request) => {
-					return Promise.resolve(new api.Response(expectedResult));
+					return Promise.resolve(new Api.Response(expectedResult));
 				});
 
 				api.handler({
@@ -119,7 +121,8 @@ describe('index.js', function() {
 		it('check promise rejection to GET handler', function(done) {
 			try {
 				var expectedResult = {'Value': 5};
-				var api = new (require('../index'))();
+				var Api = require('../index');
+				var api = new Api();
 				api.get('/test', (request) => {
 					return Promise.reject(expectedResult);
 				});
@@ -149,7 +152,8 @@ describe('index.js', function() {
 		it('check exception in GET handler', function(done) {
 			try {
 				var expectedResult = {'Value': 5};
-				var api = new (require('../index'))();
+				var Api = require('../index');
+				var api = new Api();
 				api.get('/test', (request) => {
 					throw expectedResult;
 				});
@@ -180,17 +184,11 @@ describe('index.js', function() {
 		});
 		it('check configuration options in GET handler', function() {
 			try {
-				var api = new (require('../index'))();
+				var Api = require('../index');
 				var options = {};
-				var handler = (request) => {
-					return true;
-				};
-				api.get('/test', options, handler);
-
-				var lambda = api.Routes['GET']['/test'];
-				assert.strictEqual(lambda.Handler, handler, 'Function handler does not match');
-				var lambdaConfiguration = lambda.Options;
-				assert.strictEqual(lambdaConfiguration.Handler, `${path.basename(__filename, '.js')}.handler`, 'Function handler does not match');
+				var lambdaFilename = 'lambda.js';
+				var api = new Api(options, lambdaFilename);
+				assert.strictEqual(api.Configuration.Handler, `lambda.handler`, 'Function handler does not match');
 			}
 			catch(e) {
 				console.error(e.stack);

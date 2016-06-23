@@ -2,15 +2,14 @@
 var ApiResponse = require('./src/response');
 var ApiConfiguration = require('./src/configuration');
 
-function ApiFactory() {
+function ApiFactory(options, lambdaFilename) {
 	if (!(this instanceof ApiFactory)) {
 		throw new Error('ApiFactory must be instantiated.');
 	}
 	this.AuthorizerFunc = () => true;
 	this.Routes = {};
+	this.Configuration = new ApiConfiguration(options, lambdaFilename);
 };
-
-ApiFactory.prototype.Response = ApiResponse;
 
 var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
@@ -28,7 +27,7 @@ ApiFactory.prototype.Authorizer = function(authorizerFunc, options) {
 			Route: route,
 			Verb: verb,
 			Handler: handler,
-			Options: new ApiConfiguration(options, __filename)
+			Options: options || {}
 		};
 		if(!this.Routes[verb]) { this.Routes[verb] = {}; }
 		this.Routes[verb][route] = api;
@@ -106,4 +105,5 @@ ApiFactory.prototype.handler = function(event, context, callback) {
 	}
 }
 
+ApiFactory.Response = ApiResponse;
 module.exports = ApiFactory;
