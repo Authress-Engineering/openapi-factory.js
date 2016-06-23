@@ -29,6 +29,19 @@ describe('index.js', function() {
 			}
 		});
 	});
+	describe('methods', function() {
+		it('Check expected API Methods', function() {
+			var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
+			var Api = require('../index');
+			var api = new Api();
+			assert.isFunction(api.head, 'HEAD has not been defined.');
+			assert.isFunction(api.get, 'GET has not been defined.');
+			assert.isFunction(api.put, 'PUT has not been defined.');
+			assert.isFunction(api.patch, 'PATCH has not been defined.');
+			assert.isFunction(api.post, 'POST has not been defined.');
+			assert.isFunction(api.delete, 'DELETE has not been defined.');
+		});
+	});
 	describe('authorizer', function() {
 		it('check call to default authorizerFunc', function() {
 			try {
