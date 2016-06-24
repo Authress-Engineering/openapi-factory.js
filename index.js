@@ -33,8 +33,8 @@ ApiFactory.prototype.SetAuthorizer = function(authorizerFunc, requestAuthorizati
 		if(!isFunction(handler)) { throw new Error('Handler is not defined as a function.'); }
 
 		var api = {
-			Route: route,
-			Verb: verb,
+			ResourcePath: route,
+			Method: verb,
 			Handler: handler,
 			Options: options || {}
 		};
