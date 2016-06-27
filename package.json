@@ -4,7 +4,8 @@
   "description": "Build API's and serverless code using node and first class functions.",
   "main": "index.js",
   "files": [
-    "index.js"
+    "index.js",
+    "src"
   ],
   "scripts": {
     "test": "mocha tests/**/*.js -R spec"
