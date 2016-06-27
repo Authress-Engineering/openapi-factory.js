@@ -95,6 +95,7 @@ ApiFactory.prototype.handler = function(event, context, callback) {
 	}
 
 	var data = {
+		params: event.params,
 		headers: event.headers,
 		body: event.body || {},
 		context: context,
