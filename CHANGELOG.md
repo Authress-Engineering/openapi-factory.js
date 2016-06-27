@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 1.1 ##
+* Convert to using singlu function to Lambda Functions will work with the API without class instantiation.
+
 ## 1.0 ##
 * Created npm library for building apis.
 * Pull api method and resource from AWS context.

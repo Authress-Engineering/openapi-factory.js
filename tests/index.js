@@ -79,10 +79,12 @@ describe('index.js', function() {
 					return new Api.Response(expectedResult);
 				});
 
-				api.handler({}, {
-					httpMethod: 'GET',
-					resourcePath: '/test'
-				}, x => x)
+				api.handler({
+					api: {
+						httpMethod: 'GET',
+						resourcePath: '/test'
+					}
+				}, {}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -108,10 +110,12 @@ describe('index.js', function() {
 					return Promise.resolve(new Api.Response(expectedResult));
 				});
 
-				api.handler({}, {
-					httpMethod: 'GET',
-					resourcePath: '/test'
-				}, x => x)
+				api.handler({
+					api: {
+						httpMethod: 'GET',
+						resourcePath: '/test'
+					}
+				}, {}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -137,10 +141,12 @@ describe('index.js', function() {
 					return Promise.reject(expectedResult);
 				});
 
-				api.handler({}, {
-					httpMethod: 'GET',
-					resourcePath: '/test'
-				}, x => x)
+				api.handler({
+					api: {
+						httpMethod: 'GET',
+						resourcePath: '/test'
+					}
+				}, {}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
@@ -166,10 +172,12 @@ describe('index.js', function() {
 					throw expectedResult;
 				});
 
-				api.handler({}, {
-					httpMethod: 'GET',
-					resourcePath: '/test'
-				}, x => x)
+				api.handler({
+					api: {
+						httpMethod: 'GET',
+						resourcePath: '/test'
+					}
+				}, {}, x => x)
 				.then(outputString => {
 					var output = null;
 					try { output = JSON.parse(outputString); }
