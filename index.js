@@ -98,12 +98,12 @@ module.exports = function(options, lambdaFilename) {
 			}
 
 			var data = {
-				params: event.params,
-				headers: event.headers,
+				params: event.params || {},
+				headers: event.headers || {},
 				body: event.body || {},
 				context: context,
 				queryString: event.queryString || {},
-				stage: event.variables
+				stage: event.variables || {}
 			};
 
 			try {
