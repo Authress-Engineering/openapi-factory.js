@@ -17,7 +17,11 @@ API as first class node library to generate clients, servers, and documentation.
 
 	//OR
 	api.get('/example', (request) => {
-		new ApiFactory.Response({ value: 'testWithStatus' }, { 'Content-Type': 'application/json' }, 200);
+		new ApiFactory.Response({ value: 'testWithStatus' }, 200);
 	});
 
 ```
+
+### To do
+
+* Add support for static headers

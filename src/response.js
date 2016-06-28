@@ -1,10 +1,9 @@
-function Response(body, headers, statusCode) {
+function Response(body, statusCode) {
 	if (!(this instanceof Response)) {
-		return new Response(body, headers, statusCode);
+		return new Response(body, statusCode);
 	}
 
 	this.body = body || {};
-	this.headers = headers || {};
 	this.statusCode = statusCode || 200;
 }
 
