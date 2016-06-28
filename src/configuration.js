@@ -17,6 +17,8 @@ function Configuration(options, lambdaFileName) {
 	this.MemorySize = configuration.memorySize || 128;
 	this.Publish = configuration.publish || true;
 	this.Timeout = configuration.timeout || 3;
+	this.SecurityGroupIds = configuration.securityGroupIds || [];
+	this.SubnetIds = configuration.subnetIds || [];
 }
 
 module.exports = Configuration;
