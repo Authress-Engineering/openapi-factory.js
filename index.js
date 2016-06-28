@@ -1,8 +1,7 @@
 'use strict';
 var ApiResponse = require('./src/response');
-var ApiConfiguration = require('./src/configuration');
 
-module.exports = function(options, lambdaFilename) {
+module.exports = function() {
 	var apiFactory = this;
 	if(!apiFactory) { throw new Error('ApiFactory must be instantiated.'); }
 
@@ -11,7 +10,6 @@ module.exports = function(options, lambdaFilename) {
 		Options: {}
 	};
 	apiFactory.Routes = {};
-	apiFactory.Configuration = new ApiConfiguration(options, lambdaFilename);
 
 	var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 

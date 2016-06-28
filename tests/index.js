@@ -194,18 +194,5 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
-		it('check configuration options in GET handler', function() {
-			try {
-				var Api = require('../index');
-				var options = {};
-				var lambdaFilename = 'lambda.js';
-				var api = new Api(options, lambdaFilename);
-				assert.strictEqual(api.Configuration.Handler, `lambda.handler`, 'Function handler does not match');
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
 	});
 });
