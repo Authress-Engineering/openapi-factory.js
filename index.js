@@ -124,7 +124,8 @@ module.exports = function() {
 				});
 			}
 			catch (exception) {
-				return Promise.resolve(callback(JSON.stringify(new ApiResponse(exception, 500))));
+				var body = exception instanceof Error ? exception.toString() : exception;
+				return Promise.resolve(callback(JSON.stringify(new ApiResponse(body, 500))));
 			}
 		}
 		catch (exception) {

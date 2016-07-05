@@ -194,5 +194,37 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
+		it('check Error in GET handler', function(done) {
+			try {
+				var errorMessage = 'This is the error';
+				var expectedResult = `Error: ${errorMessage}`;
+				var Api = require('../index');
+				var api = new Api();
+				api.get('/test', (request) => {
+					throw new Error(errorMessage);
+				});
+
+				api.handler({
+					api: {
+						httpMethod: 'GET',
+						resourcePath: '/test'
+					}
+				}, {}, x => x)
+				.then(outputString => {
+					var output = null;
+					try { output = JSON.parse(outputString); }
+					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
+
+					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
+					done();
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(false, e.toString());
+			}
+		});
 	});
 });
