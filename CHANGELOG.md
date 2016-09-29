@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 2.0 ##
+* Support new API Gateway format.
+
 ## 1.1 ##
 * Convert to using singlu function to Lambda Functions will work with the API without class instantiation.
 * Add VPC Security Group and Subnet options.

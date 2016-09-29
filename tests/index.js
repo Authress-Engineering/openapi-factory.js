@@ -40,6 +40,7 @@ describe('index.js', function() {
 			assert.isFunction(api.patch, 'PATCH has not been defined.');
 			assert.isFunction(api.post, 'POST has not been defined.');
 			assert.isFunction(api.delete, 'DELETE has not been defined.');
+			assert.isFunction(api.any, 'ANY has not been defined.');
 		});
 	});
 	describe('authorizer', function() {
@@ -80,17 +81,11 @@ describe('index.js', function() {
 				});
 
 				api.handler({
-					api: {
-						httpMethod: 'GET',
-						resourcePath: '/test'
-					}
-				}, {}, x => x)
-				.then(outputString => {
-					var output = null;
-					try { output = JSON.parse(outputString); }
-					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
-
-					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 					done();
 				})
@@ -111,17 +106,11 @@ describe('index.js', function() {
 				});
 
 				api.handler({
-					api: {
-						httpMethod: 'GET',
-						resourcePath: '/test'
-					}
-				}, {}, x => x)
-				.then(outputString => {
-					var output = null;
-					try { output = JSON.parse(outputString); }
-					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
-
-					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 					done();
 				})
@@ -142,17 +131,11 @@ describe('index.js', function() {
 				});
 
 				api.handler({
-					api: {
-						httpMethod: 'GET',
-						resourcePath: '/test'
-					}
-				}, {}, x => x)
-				.then(outputString => {
-					var output = null;
-					try { output = JSON.parse(outputString); }
-					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
-
-					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
 					done();
 				})
@@ -173,17 +156,11 @@ describe('index.js', function() {
 				});
 
 				api.handler({
-					api: {
-						httpMethod: 'GET',
-						resourcePath: '/test'
-					}
-				}, {}, x => x)
-				.then(outputString => {
-					var output = null;
-					try { output = JSON.parse(outputString); }
-					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
-
-					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
 					done();
 				})
@@ -205,17 +182,11 @@ describe('index.js', function() {
 				});
 
 				api.handler({
-					api: {
-						httpMethod: 'GET',
-						resourcePath: '/test'
-					}
-				}, {}, x => x)
-				.then(outputString => {
-					var output = null;
-					try { output = JSON.parse(outputString); }
-					catch (exception) { assert(false, `failed to parse response as json: ${outputString}`); }
-
-					assert.deepEqual(output.body, expectedResult, `Output data does not match expected.`);
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
 					done();
 				})

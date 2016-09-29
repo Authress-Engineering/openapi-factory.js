@@ -24,7 +24,7 @@ module.exports = function() {
 		};
 	};
 
-	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'].forEach((verb) => {
+	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'].forEach((verb) => {
 		this[verb.toLowerCase()] = function(route, p0, p1, p2) {
 			var params = [p0, p1, p2].filter(p => p);
 			var handler = null, headers = {}, options = {};
@@ -76,37 +76,41 @@ module.exports = function() {
 			}
 
 			if(!callback) {
-				return callback(JSON.stringify({
+				return callback(null, {
 					statusCode: 500,
-					error: 'Lambda function was not executed with a callback, check the version of nodejs specified.',
-					details: {
-						event: event,
-						context: context
+					body: JSON.stringify({
+						error: 'Lambda function was not executed with a callback, check the version of nodejs specified.',
+						details: {
+							event: event,
+							context: context
+						}
+					}),
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				}));
+				});
 			}
 
-			var lambda = apiFactory.Routes[event.api.httpMethod][event.api.resourcePath].Handler;
+			var lambda = apiFactory.Routes[event.httpMethod][event.resource].Handler;
 			if(!lambda) {
-				return callback(JSON.stringify({
+				return callback(null, {
 					statusCode: 500,
-					error: 'No handler defined for method and resource.',
-					details: event.api
-				}));
+					body: JSON.stringify({
+						error: 'No handler defined for method and resource.',
+						details: {
+							event: event,
+							context: context
+						}
+					}),
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
 			}
-
-			var data = {
-				params: event.params || {},
-				headers: event.headers || {},
-				body: event.body || {},
-				context: context,
-				queryString: event.queryString || {},
-				stage: event.variables || {}
-			};
 
 			try {
-				var resultPromise = lambda(data);
-				if(!resultPromise) { return callback(JSON.stringify(new ApiResponse(null, 204))); }
+				var resultPromise = lambda(event, context);
+				if(!resultPromise) { return callback(null, new ApiResponse(null, 204)); }
 
 				return Promise.resolve(resultPromise)
 				.then((result) => {
@@ -114,23 +118,23 @@ module.exports = function() {
 					if(!(apiResponse instanceof ApiResponse)) {
 						apiResponse = new ApiResponse(apiResponse, 200);
 					}
-					return callback(JSON.stringify(apiResponse));
+					return callback(null, apiResponse);
 				}, (failure) => {
 					var apiResponse = failure;
 					if(!(apiResponse instanceof ApiResponse)) {
 						apiResponse = new ApiResponse(apiResponse, 500);
 					}
-					return callback(JSON.stringify(apiResponse));
+					return callback(null, apiResponse);
 				});
 			}
 			catch (exception) {
 				var body = exception instanceof Error ? exception.toString() : exception;
-				return Promise.resolve(callback(JSON.stringify(new ApiResponse(body, 500))));
+				return Promise.resolve(callback(null, new ApiResponse(body, 500)));
 			}
 		}
 		catch (exception) {
 			console.log(exception.stack || exception);
-			return Promise.resolve(callback(JSON.stringify(new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500))));
+			return Promise.resolve(callback(null, new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500)));
 		}
 	}
 };
