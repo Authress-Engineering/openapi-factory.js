@@ -71,6 +71,31 @@ describe('index.js', function() {
 		});
 	});
 	describe('handler', function() {
+		it('check call to ANY handler', function(done) {
+			try {
+				var expectedResult = {'Value': 5};
+				var Api = require('../index');
+				var api = new Api();
+				api.any('/test', (request) => {
+					return new Api.Response(expectedResult);
+				});
+
+				api.handler({
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x)
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+					done();
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(false, e.toString());
+			}
+		});
 		it('check call to GET handler', function(done) {
 			try {
 				var expectedResult = {'Value': 5};

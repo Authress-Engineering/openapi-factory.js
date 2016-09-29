@@ -91,7 +91,7 @@ module.exports = function() {
 				});
 			}
 
-			var lambda = apiFactory.Routes[event.httpMethod][event.resource].Handler;
+			var lambda = (apiFactory.Routes[event.httpMethod] || apiFactory.Routes['ANY'])[event.resource].Handler;
 			if(!lambda) {
 				return callback(null, {
 					statusCode: 500,
