@@ -17,7 +17,7 @@ API as first class node library to generate clients, servers, and documentation.
 
 	//OR
 	api.get('/example', (request) => {
-		new ApiFactory.Response({ value: 'testWithStatus' }, 200);
+		new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
 	});
 
 ```
