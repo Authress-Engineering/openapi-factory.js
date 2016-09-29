@@ -133,7 +133,7 @@ module.exports = function() {
 			}
 		}
 		catch (exception) {
-			console.log(exception.stack || exception);
+			console.log(exception.stack || exception.toString());
 			return Promise.resolve(callback(null, new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500)));
 		}
 	}
