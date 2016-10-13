@@ -92,8 +92,12 @@ module.exports = function() {
 			}
 
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];
-			var lambda = (!mainEventHandler || !mainEventHandler[event.resource] ? apiFactory.Routes['ANY'][event.resource] : mainEventHandler[event.resource]).Handler;
-			if(!lambda) {
+			var anyEventHandler = apiFactory.Routes['ANY'];
+			var definedRoute = null;
+			if(mainEventHandler && mainEventHandler[event.resource]) { definedRoute = mainEventHandler[event.resource]; }
+			else if(anyEventHandler && anyEventHandler[event.resource]) { definedRoute = anyEventHandler[event.resource]; }
+
+			if(!definedRoute) {
 				return callback(null, {
 					statusCode: 500,
 					body: JSON.stringify({
@@ -109,6 +113,7 @@ module.exports = function() {
 				});
 			}
 
+			var lambda = definedRoute.Handler;
 			try {
 				var resultPromise = lambda(event, context);
 				if(!resultPromise) { return callback(null, new ApiResponse(null, 204)); }
