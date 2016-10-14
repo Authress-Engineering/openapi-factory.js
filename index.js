@@ -57,7 +57,7 @@ module.exports = function() {
 				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail("Unauthorized"); }
 				try {
 					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, context.authorizer.principalId);
-					resultPromise.then(policy => {
+					return resultPromise.then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult', Success: true, Details: policy}));
 						return context.succeed(policy);
 					}, failure => {
