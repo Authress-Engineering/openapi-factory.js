@@ -69,6 +69,44 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
+		it('check call to false authorizerFunc', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.SetAuthorizer(() => {
+					return Promise.reject('Unauthorized');
+				});
+				var result = api.Authorizer.AuthorizerFunc()
+				.then(bad => {
+					done('Should have failed');
+				}, correctFailure => {
+					done();
+				});
+			}
+			catch(e) {
+				console.error(e);
+				assert(false, e.toString());
+			}
+		});
+		it('check call to success authorizerFunc', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.SetAuthorizer(() => {
+					return Promise.resolve();
+				});
+				var result = api.Authorizer.AuthorizerFunc()
+				.then(success => {
+					done();
+				}, correctFailure => {
+					done(`Should not have failed: ${correctFailure}`);
+				});
+			}
+			catch(e) {
+				console.error(e);
+				assert(false, e.toString());
+			}
+		});
 	});
 	describe('handler', function() {
 		it('check call to ANY handler', function(done) {
