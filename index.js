@@ -6,7 +6,7 @@ module.exports = function() {
 	if(!apiFactory) { throw new Error('ApiFactory must be instantiated.'); }
 
 	apiFactory.Authorizer = {
-		AuthorizerFunc: () => true,
+		AuthorizerFunc: null,
 		Options: {}
 	};
 	apiFactory.Routes = {};
@@ -54,24 +54,26 @@ module.exports = function() {
 		try {
 			//If this is the authorizer lambda, then call the authorizer
 			if(event.type && event.authorizationToken && event.methodArn) {
+				var failurePolicy = {
+					principalId: ((context || {}).authorizer || {}).principalId || 'no-principal-specified',
+					policyDocument: {
+						Version: '2012-10-17',
+						Statement: [
+							{
+								Action: 'execute-api:Invoke',
+								Effect: 'Deny',
+								Resource: event.methodArn
+							}
+						]
+					}
+				};
+				if(!apiFactory.Authorizer.AuthorizerFunc) { return failurePolicy; }
 				try {
 					return apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, context.authorizer.principalId);
 				}
 				catch (exception) {
 					console.log(`Failure to authorize: ${exception.stack || exception} event: ${JSON.stringify(event)} context: ${JSON.stringify(context)}`)
-					return {
-						principalId: context.authorizer.principalId,
-						policyDocument: {
-							Version: '2012-10-17',
-							Statement: [
-								{
-									Action: 'execute-api:Invoke',
-									Effect: 'Deny',
-									Resource: event.methodArn
-								}
-							]
-						}
-					};
+					return failurePolicy;
 				}
 			}
 

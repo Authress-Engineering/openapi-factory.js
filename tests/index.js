@@ -48,7 +48,7 @@ describe('index.js', function() {
 			try {
 				var Api = require('../index');
 				var api = new Api();
-				assert(api.Authorizer.AuthorizerFunc());
+				assert(api.Authorizer.AuthorizerFunc === null);
 			}
 			catch(e) {
 				console.error(e);
