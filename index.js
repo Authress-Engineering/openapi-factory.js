@@ -62,7 +62,7 @@ module.exports = function() {
 						return context.succeed(policy);
 					}, failure => {
 						console.log(JSON.stringify({Title: 'PolicyResult', Success: false, Details: failure}));
-						return context.fail('Unauthorized');
+						return context.fail(failure);
 					});
 				}
 				catch (exception) {
