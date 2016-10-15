@@ -57,11 +57,11 @@ module.exports = function() {
 				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail('Authorizer Undefined'); }
 				try {
 					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn);
-					return resultPromise.then(policy => {
+					return Promise.resolve(resultPromise).then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
 						return context.succeed(policy);
 					}, failure => {
-						console.log(JSON.stringify({Title: 'PolicyResult Failure', Details: failure, Event: event, Content: context}));
+						console.log(JSON.stringify({Title: 'PolicyResult Failure', Details: failure}));
 						return context.fail(failure);
 					});
 				}
