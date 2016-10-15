@@ -56,7 +56,7 @@ module.exports = function() {
 			if(event.type && event.authorizationToken && event.methodArn) {
 				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail('Authorizer Undefined'); }
 				try {
-					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, ((context || {}).authorizer || {}).principalId);
+					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn);
 					return resultPromise.then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
 						return context.succeed(policy);
