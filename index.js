@@ -54,20 +54,20 @@ module.exports = function() {
 		try {
 			//If this is the authorizer lambda, then call the authorizer
 			if(event.type && event.authorizationToken && event.methodArn) {
-				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail("Unauthorized"); }
+				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail('Authorizer Undefined'); }
 				try {
-					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, context.authorizer.principalId);
+					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn, ((context || {}).authorizer || {}).principalId);
 					return resultPromise.then(policy => {
-						console.log(JSON.stringify({Title: 'PolicyResult', Success: true, Details: policy}));
+						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
 						return context.succeed(policy);
 					}, failure => {
-						console.log(JSON.stringify({Title: 'PolicyResult', Success: false, Details: failure}));
+						console.log(JSON.stringify({Title: 'PolicyResult Failure', Details: failure, Event: event, Content: context}));
 						return context.fail(failure);
 					});
 				}
 				catch (exception) {
 					console.log(`Failure to authorize: ${exception.stack || exception} event: ${JSON.stringify(event)} context: ${JSON.stringify(context)}`)
-					return context.fail("Unauthorized");
+					return context.fail('Failed to Authorize');
 				}
 			}
 
