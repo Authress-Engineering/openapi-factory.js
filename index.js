@@ -56,7 +56,11 @@ module.exports = function() {
 			if(event.type && event.authorizationToken && event.methodArn) {
 				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail('Authorizer Undefined'); }
 				try {
-					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event.authorizationToken, event.methodArn);
+					var authorization = {
+						Type: event.authorizationToken.split(' ')[0],
+						Token: event.authorizationToken.split(' ')[1]
+					};
+					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(authorization, event.methodArn, ((context || {}).authorizer || {}).principalId);
 					return Promise.resolve(resultPromise).then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
 						return context.succeed(policy);
@@ -72,7 +76,7 @@ module.exports = function() {
 			}
 
 			if(!callback) {
-				return callback(null, {
+				throw new Error(JSON.stringify({
 					statusCode: 500,
 					body: JSON.stringify({
 						error: 'Lambda function was not executed with a callback, check the version of nodejs specified.',
@@ -84,7 +88,7 @@ module.exports = function() {
 					headers: {
 						'Content-Type': 'application/json'
 					}
-				});
+				}));
 			}
 
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];

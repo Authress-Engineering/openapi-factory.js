@@ -107,6 +107,65 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
+		it('check call to success authorizer', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.SetAuthorizer(() => {
+					return Promise.resolve();
+				});
+				var result = api.Authorizer.AuthorizerFunc()
+				.then(success => {
+					done();
+				}, incorrectFailure => {
+					done(`Should not have failed: ${incorrectFailure}`);
+				});
+			}
+			catch(e) {
+				console.error(e);
+				assert(false, e.toString());
+			}
+		});
+		it('check call to failure authorizer', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.SetAuthorizer(() => {
+					return Promise.reject('Fail this test');
+				});
+				api.Authorizer.AuthorizerFunc()
+				.then(incorrectSuccess => {
+					done(`Should not have passed: ${incorrectSuccess}`);
+				}, correctFailure => {
+					done();
+				});
+			}
+			catch(e) {
+				console.error(e);
+				assert(false, e.toString());
+			}
+		});
+		it('check call to failure authorizer handler', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.SetAuthorizer(() => {
+					return Promise.reject('Fail this test');
+				});
+				api.handler({
+					type: 'TOKEN',
+					authorizationToken: 'token',
+					methodArn: 'authorizationHandlerTest'
+				}, {
+					succeed: (a) => { done('This test should have failed'); },
+					fail: (failure) => { done(); }
+				});
+			}
+			catch(e) {
+				console.error(e);
+				assert(false, e.toString());
+			}
+		});
 	});
 	describe('handler', function() {
 		it('check call to ANY handler', function(done) {
