@@ -60,7 +60,7 @@ module.exports = function() {
 						Type: event.authorizationToken.split(' ')[0],
 						Token: event.authorizationToken.split(' ')[1]
 					};
-					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(authorization, event.methodArn, ((context || {}).authorizer || {}).principalId);
+					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(authorization, event.methodArn, context);
 					return Promise.resolve(resultPromise).then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
 						return context.succeed(policy);
