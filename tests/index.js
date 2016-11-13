@@ -156,10 +156,7 @@ describe('index.js', function() {
 					type: 'TOKEN',
 					authorizationToken: 'token',
 					methodArn: 'authorizationHandlerTest'
-				}, {
-					succeed: (a) => { done('This test should have failed'); },
-					fail: (failure) => { done(); }
-				});
+				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); });
 			}
 			catch(e) {
 				console.error(e);
