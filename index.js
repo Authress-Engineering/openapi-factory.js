@@ -14,7 +14,7 @@ module.exports = function() {
 	var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
 	apiFactory.SetAuthorizer = function(authorizerFunc, requestAuthorizationHeader, cacheTimeout) {
-		if(!isFunction(authorizerFunc)) { throw new Error('Authorizer Function has not be defined as a function.'); }
+		if(!isFunction(authorizerFunc)) { throw new Error('Authorizer Function has not been defined as a function.'); }
 		apiFactory.Authorizer = {
 			AuthorizerFunc: authorizerFunc,
 			Options: {
@@ -51,10 +51,28 @@ module.exports = function() {
 
 	/* This is the entry point from AWS Lambda. */
 	apiFactory.handler = function(event, context, callback) {
+		if(!callback) {
+			var errorResponse = {
+				statusCode: 500,
+				body: JSON.stringify({
+					error: 'Lambda function was not executed with a callback, check the version of nodejs specified.',
+					details: {
+						event: event,
+						context: context
+					}
+				}),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			};
+			console.log(`Callback Not Defined: ${JSON.stringify(errorResponse)}`);
+			throw new Error(JSON.stringify(errorResponse));
+		}
+
 		try {
 			//If this is the authorizer lambda, then call the authorizer
 			if(event.type && event.authorizationToken && event.methodArn) {
-				if(!apiFactory.Authorizer.AuthorizerFunc) { return context.fail('Authorizer Undefined'); }
+				if(!apiFactory.Authorizer.AuthorizerFunc) { return callback('Authorizer Undefined'); }
 				try {
 					var authorization = {
 						Type: event.authorizationToken.split(' ')[0],
@@ -63,32 +81,16 @@ module.exports = function() {
 					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(authorization, event.methodArn, context);
 					return Promise.resolve(resultPromise).then(policy => {
 						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
-						return context.succeed(policy);
+						return callback(null, policy);
 					}, failure => {
 						console.log(JSON.stringify({Title: 'PolicyResult Failure', Details: failure}));
-						return context.fail(failure);
+						return callback(failure);
 					});
 				}
 				catch (exception) {
 					console.log(`Failure to authorize: ${exception.stack || exception} event: ${JSON.stringify(event)} context: ${JSON.stringify(context)}`)
-					return context.fail('Failed to Authorize');
+					return callback('Failed to Authorize');
 				}
-			}
-
-			if(!callback) {
-				throw new Error(JSON.stringify({
-					statusCode: 500,
-					body: JSON.stringify({
-						error: 'Lambda function was not executed with a callback, check the version of nodejs specified.',
-						details: {
-							event: event,
-							context: context
-						}
-					}),
-					headers: {
-						'Content-Type': 'application/json'
-					}
-				}));
 			}
 
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];
