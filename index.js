@@ -116,6 +116,9 @@ module.exports = function() {
 			}
 
 			var lambda = definedRoute.Handler;
+			//Convert a string body into a javascript object, if it is valid json
+			try { event.body = JSON.parse(event.body); }
+			catch (e) {}
 			try {
 				var resultPromise = lambda(event, context);
 				if(!resultPromise) { return callback(null, new ApiResponse(null, 204)); }
