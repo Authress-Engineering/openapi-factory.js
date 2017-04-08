@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 2.1 ##
+* Binary data can now be sent as a buffer.
+
 ## 2.0 ##
 * Support new API Gateway format.
 * Set default AuthorizerPolicy with promises.
