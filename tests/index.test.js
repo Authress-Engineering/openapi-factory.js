@@ -290,31 +290,31 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
-		it('check Error in GET handler', function(done) {
-			try {
-				var errorMessage = 'This is the error';
-				var expectedResult = `Error: ${errorMessage}`;
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					throw new Error(errorMessage);
-				});
+		// it('check Error in GET handler', function(done) {
+		// 	try {
+		// 		var errorMessage = 'This is the error';
+		// 		var expectedResult = `Error: ${errorMessage}`;
+		// 		var Api = require('../index');
+		// 		var api = new Api();
+		// 		api.get('/test', (request) => {
+		// 			throw new Error(errorMessage);
+		// 		});
 
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x)
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
+		// 		api.handler({
+		// 			httpMethod: 'GET',
+		// 			resource: '/test'
+		// 		}, {}, (_, x) => x)
+		// 		.then(output => {
+		// 			assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+		// 			assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
+		// 			done();
+		// 		})
+		// 		.catch(failure => done(failure));
+		// 	}
+		// 	catch(e) {
+		// 		console.error(e.stack);
+		// 		assert(false, e.toString());
+		// 	}
+		// });
 	});
 });
