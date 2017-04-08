@@ -1,4 +1,4 @@
-'use strict;'
+'use strict';
 const esprima = require('esprima');
 const mocha = require('mocha');
 const assert = require('chai').assert;
