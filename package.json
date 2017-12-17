@@ -12,13 +12,14 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "commander": "^2.9.0",
-    "travis-build-tools": "^1.0",
     "chai": "^3.5.0",
+    "commander": "^2.9.0",
     "esprima": "^2.7.2",
     "glob": "^5.0.15",
     "mocha": "^2.4.5",
-    "sinon": "^1.17.3"
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.14.0",
+    "travis-build-tools": "^1.0"
   },
   "repository": {
     "type": "git",

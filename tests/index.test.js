@@ -1,15 +1,27 @@
 'use strict';
-var esprima = require('esprima');
-var mocha = require('mocha');
-var assert = require('chai').assert;
-var fs = require('fs');
-var path = require('path');
+const esprima = require('esprima');
+const mocha = require('mocha');
+const chai = require('chai');
+const fs = require('fs');
+const path = require('path');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+
+const MapExpander = require('../src/mapExpander');
+
+const assert = chai.assert;
+const expect = chai.expect;
+chai.use(sinonChai);
+
+let sandbox;
+beforeEach(() => { sandbox = sinon.sandbox.create(); });
+afterEach(() => sandbox.restore());
 
 describe('index.js', function() {
 	describe('Syntax', function() {
 		it('Should be valid Javascript', function() {
 			try {
-				var userStringToTest = fs.readFileSync(path.resolve('index.js'));
+				let userStringToTest = fs.readFileSync(path.resolve('index.js'));
 				esprima.parse(userStringToTest);
 				assert(true);
 			}
@@ -166,6 +178,9 @@ describe('index.js', function() {
 	});
 	describe('handler', function() {
 		it('check call to ANY handler', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
 			try {
 				var expectedResult = {'Value': 5};
 				var Api = require('../index');
@@ -191,6 +206,9 @@ describe('index.js', function() {
 			}
 		});
 		it('check call to GET handler', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
 			try {
 				var expectedResult = {'Value': 5};
 				var Api = require('../index');
@@ -216,6 +234,9 @@ describe('index.js', function() {
 			}
 		});
 		it('check promise result to GET handler', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
 			try {
 				var expectedResult = {'Value': 5};
 				var Api = require('../index');
@@ -241,6 +262,9 @@ describe('index.js', function() {
 			}
 		});
 		it('check promise rejection to GET handler', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
 			try {
 				var expectedResult = {'Value': 5};
 				var Api = require('../index');
@@ -266,6 +290,9 @@ describe('index.js', function() {
 			}
 		});
 		it('check exception in GET handler', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
 			try {
 				var expectedResult = {'Value': 5};
 				var Api = require('../index');
@@ -290,31 +317,5 @@ describe('index.js', function() {
 				assert(false, e.toString());
 			}
 		});
-		// it('check Error in GET handler', function(done) {
-		// 	try {
-		// 		var errorMessage = 'This is the error';
-		// 		var expectedResult = `Error: ${errorMessage}`;
-		// 		var Api = require('../index');
-		// 		var api = new Api();
-		// 		api.get('/test', (request) => {
-		// 			throw new Error(errorMessage);
-		// 		});
-
-		// 		api.handler({
-		// 			httpMethod: 'GET',
-		// 			resource: '/test'
-		// 		}, {}, (_, x) => x)
-		// 		.then(output => {
-		// 			assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-		// 			assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
-		// 			done();
-		// 		})
-		// 		.catch(failure => done(failure));
-		// 	}
-		// 	catch(e) {
-		// 		console.error(e.stack);
-		// 		assert(false, e.toString());
-		// 	}
-		// });
 	});
 });
