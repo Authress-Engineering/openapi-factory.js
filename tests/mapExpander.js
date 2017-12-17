@@ -26,6 +26,7 @@ describe('mapExpander.js', () => {
 				path: '/',
 				expectedOutputMap: {
 					'': {
+						_tokens: [],
 						_value: testValue 
 					}
 				}
@@ -36,6 +37,7 @@ describe('mapExpander.js', () => {
 				path: '/items',
 				expectedOutputMap: {
 					'items': {
+						_tokens: [],
 						_value: testValue 
 					}
 				}
@@ -53,6 +55,7 @@ describe('mapExpander.js', () => {
 						_value: 'items-value' 
 					},
 					'resource': {
+						_tokens: [],
 						_value: testValue
 					}
 				}
@@ -66,6 +69,7 @@ describe('mapExpander.js', () => {
 						'*': {
 							'subresource': {
 								'*': {
+									_tokens: ['resource', 'subresource'],
 									_value: testValue
 								}
 							}
@@ -77,15 +81,53 @@ describe('mapExpander.js', () => {
 				name: 'multiple resources with the same top level paths',
 				inputMap: {
 					'resource': {
-						_value: 'resource-value'
+						_value: 'resource-value',
+						'subpath1': {
+							_tokens: [],
+							_value: 'subvalue1'
+						}
+
 					}
 				},
-				path: '/resource/subpath',
+				path: '/resource/subpath2',
 				expectedOutputMap: {
 					'resource': {
 						_value: 'resource-value',
-						'subpath': {
+						'subpath1': {
+							_tokens: [],
+							_value: 'subvalue1'
+						},
+						'subpath2': {
+							_tokens: [],
 							_value: testValue
+						}
+					}
+				}
+			},
+			{
+				name: 'multiple wildcard resources with the different low level paths',
+				inputMap: {
+					'resource': {
+						'*': {
+							'subpath1': {
+								_value: 'subvalue1',
+								_tokens: ['subtoken1']
+							}
+						}
+					}
+				},
+				path: '/resource/{subtoken2}/subpath2',
+				expectedOutputMap: {
+					'resource': {
+						'*': {
+							'subpath1': {
+								_value: 'subvalue1',
+								_tokens: ['subtoken1']
+							},
+							'subpath2': {
+								_value: testValue,
+								_tokens: ['subtoken2']
+							}
 						}
 					}
 				}
@@ -110,7 +152,10 @@ describe('mapExpander.js', () => {
 						_value: expectedValue
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					tokens: {},
+					value: expectedValue
+				}
 			},
 			{
 				name: 'first level map',
@@ -120,7 +165,10 @@ describe('mapExpander.js', () => {
 						_value: expectedValue
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					tokens: {},
+					value: expectedValue
+				}
 			},
 			{
 				name: 'dynamic value',
@@ -128,11 +176,17 @@ describe('mapExpander.js', () => {
 				inputMap: {
 					'resource': {
 						'*': {
-							_value: expectedValue
+							_value: expectedValue,
+							_tokens: ['token1']
 						}
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: 'resourceId'
+					}
+				}
 			},
 			{
 				name: 'multiple dynamic values',
@@ -142,13 +196,20 @@ describe('mapExpander.js', () => {
 						'*': {
 							'subresource': {
 								'*': {
+									_tokens: ['token1', 'token2'],
 									_value: expectedValue
 								}
 							}
 						}
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: 'resourceId',
+						token2: 'subId'
+					}
+				}
 			},
 			{
 				name: 'match explicit before wild card',
@@ -163,7 +224,10 @@ describe('mapExpander.js', () => {
 						}
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					tokens: {},
+					value: expectedValue
+				}
 			},
 			{
 				name: 'path not found',
@@ -178,14 +242,17 @@ describe('mapExpander.js', () => {
 				expectedValue: null
 			},
 			{
-				name: 'proxy path is null found',
+				name: 'proxy path is null',
 				path: null,
 				inputMap: {
 					'': {
 						_value: expectedValue
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					tokens: {},
+					value: expectedValue
+				}
 			},
 			{
 				name: 'top level check',
@@ -195,14 +262,65 @@ describe('mapExpander.js', () => {
 						_value: expectedValue
 					}
 				},
-				expectedValue: expectedValue
+				expectedValue: {
+					tokens: {},
+					value: expectedValue
+				}
+			},
+			{
+				name: 'multiple wildcards at the same level',
+				path: '/resource/resourceId/subresource1',
+				inputMap: {
+					'resource': {
+						'*': {
+							'subresource1': {
+								_tokens: ['token1'],
+								_value: expectedValue
+							},
+							'subresource2': {
+								_tokens: ['token2'],
+								_value: 'bad-value'
+							}
+						}
+					},
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: 'resourceId'
+					}
+				}
+			},
+			{
+				name: 'multiple wildcards at the same level second one check',
+				path: '/resource/resourceId/subresource2',
+				inputMap: {
+					'resource': {
+						'*': {
+							'subresource1': {
+								_tokens: ['token1'],
+								_value: 'bad-value'
+							},
+							'subresource2': {
+								_tokens: ['token2'],
+								_value: expectedValue
+							}
+						}
+					},
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token2: 'resourceId'
+					}
+				}
 			}
 		];
 		testCases.map(test => {
 			it(test.name, () => {
 				let mapExpander = new MapExpander();
 				let resultValue = mapExpander.getMapValue(test.inputMap, test.path);
-				expect(resultValue).to.equal(test.expectedValue);
+				expect(resultValue).to.eql(test.expectedValue);
 			});
 		});
 	});
