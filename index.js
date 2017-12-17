@@ -111,7 +111,7 @@ module.exports = function() {
 			}
 			// if it is a proxy path then then look up the proxied value.
 			else {
-				definedRoute = mapExapander.getMapValue(apiFactory.ProxyRoutes[verb], event.pathParameters.proxy);
+				definedRoute = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.pathParameters.proxy);
 			}
 
 			// either it is proxied and not defined or not defined, either way go to the proxy method.
