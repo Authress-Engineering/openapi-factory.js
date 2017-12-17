@@ -46,7 +46,10 @@ module.exports = function() {
 				Handler: handler,
 				Options: options || {}
 			};
-			if(!apiFactory.Routes[verb]) { apiFactory.Routes[verb] = {}; }
+			if (!apiFactory.Routes[verb]) {
+				apiFactory.Routes[verb] = {};
+				apiFactory.ProxyRoutes[verb] = {};
+			}
 			apiFactory.Routes[verb][path] = api;
 			apiFactory.ProxyRoutes[verb] = mapExapander.expandMap(apiFactory.ProxyRoutes[verb], path, api);
 		};
