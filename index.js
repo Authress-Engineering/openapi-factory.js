@@ -1,6 +1,7 @@
 'use strict';
-var ApiResponse = require('./src/response');
-
+const ApiResponse = require('./src/response');
+const MapExapander = require('./src/mapExpander');
+let mapExapander = new MapExapander();
 module.exports = function() {
 	var apiFactory = this;
 	if(!apiFactory) { throw new Error('ApiFactory must be instantiated.'); }
@@ -10,6 +11,7 @@ module.exports = function() {
 		Options: {}
 	};
 	apiFactory.Routes = {};
+	apiFactory.ProxyRoutes = {};
 
 	var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
@@ -46,6 +48,7 @@ module.exports = function() {
 			};
 			if(!apiFactory.Routes[verb]) { apiFactory.Routes[verb] = {}; }
 			apiFactory.Routes[verb][path] = api;
+			apiFactory.ProxyRoutes[verb] = mapExapander.expandMap(apiFactory.ProxyRoutes[verb], path, api);
 		};
 	});
 
@@ -96,8 +99,12 @@ module.exports = function() {
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];
 			var anyEventHandler = apiFactory.Routes['ANY'];
 			var definedRoute = null;
-			if(mainEventHandler && mainEventHandler[event.resource]) { definedRoute = mainEventHandler[event.resource]; }
-			else if(anyEventHandler && anyEventHandler[event.resource]) { definedRoute = anyEventHandler[event.resource]; }
+
+			if (mainEventHandler && mainEventHandler[event.resource]) { definedRoute = mainEventHandler[event.resource]; }
+			else if (anyEventHandler && anyEventHandler[event.resource]) { definedRoute = anyEventHandler[event.resource]; }
+			else if (event.resource === '/{proxy+}') {
+				definedRoute = mapExapander.getMapValue(apiFactory.ProxyRoutes[verb], event.pathParameters.proxy);
+			}
 
 			if(!definedRoute) {
 				return callback(null, {

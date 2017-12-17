@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 2.2 ##
+* paths can be specified at the top level instead of needing to put the paths in '{/proxy+}'.
+
 ## 2.1 ##
 * Binary data can now be sent as a buffer.
 
