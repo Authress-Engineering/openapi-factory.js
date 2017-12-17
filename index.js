@@ -103,10 +103,21 @@ module.exports = function() {
 			var anyEventHandler = apiFactory.Routes['ANY'];
 			var definedRoute = null;
 
-			if (mainEventHandler && mainEventHandler[event.resource]) { definedRoute = mainEventHandler[event.resource]; }
-			else if (anyEventHandler && anyEventHandler[event.resource]) { definedRoute = anyEventHandler[event.resource]; }
-			else if (event.resource === '/{proxy+}') {
+			let proxyPath = '/{proxy+}';
+			// default to defined path when proxy is not specified.
+			if (event.resource !== proxyPath) {
+				if (mainEventHandler && mainEventHandler[event.resource]) { definedRoute = mainEventHandler[event.resource]; }
+				else if (anyEventHandler && anyEventHandler[event.resource]) { definedRoute = anyEventHandler[event.resource]; }
+			}
+			// if it is a proxy path then then look up the proxied value.
+			else {
 				definedRoute = mapExapander.getMapValue(apiFactory.ProxyRoutes[verb], event.pathParameters.proxy);
+			}
+
+			// either it is proxied and not defined or not defined, either way go to the proxy method.
+			if (!definedRoute) {
+				if (mainEventHandler && mainEventHandler[proxyPath]) { definedRoute = mainEventHandler[proxyPath]; }
+				else if (anyEventHandler && anyEventHandler[proxyPath]) { definedRoute = anyEventHandler[proxyPath]; }
 			}
 
 			if(!definedRoute) {
