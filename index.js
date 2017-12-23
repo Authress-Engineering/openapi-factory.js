@@ -71,31 +71,30 @@ module.exports = function() {
 					'Content-Type': 'application/json'
 				}
 			};
-			console.log(`Callback Not Defined: ${JSON.stringify(errorResponse)}`);
+			console.log(JSON.stringify({ title: 'AWS Lambda "callback" function not defined, uprade nodejs version.', error: errorResponse }, null, 2));
 			throw new Error(JSON.stringify(errorResponse));
 		}
 
 		try {
 			//If this is the authorizer lambda, then call the authorizer
-			if(event.type && event.authorizationToken && event.methodArn) {
-				if(!apiFactory.Authorizer.AuthorizerFunc) { return callback('Authorizer Undefined'); }
+			if(event.type === 'REQUEST' && event.methodArn) {
+				if(!apiFactory.Authorizer.AuthorizerFunc) {
+					console.log(JSON.stringify({ title: 'No authorizer function defined' }));
+					return callback('Authorizer Undefined');
+				}
 				try {
-					var authorization = {
-						Type: event.authorizationToken.split(' ')[0],
-						Token: event.authorizationToken.split(' ')[1]
-					};
-					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(authorization, event.methodArn, context);
+					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event);
 					return Promise.resolve(resultPromise).then(policy => {
-						console.log(JSON.stringify({Title: 'PolicyResult Success', Details: policy}));
+						console.log(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
 						return callback(null, policy);
 					}, failure => {
-						console.log(JSON.stringify({Title: 'PolicyResult Failure', Details: failure}));
+						console.log(JSON.stringify({ title: 'PolicyResult Failure', error: failure }, null, 2));
 						return callback(failure);
 					});
 				}
 				catch (exception) {
-					console.log(`Failure to authorize: ${exception.stack || exception} event: ${JSON.stringify(event)} context: ${JSON.stringify(context)}`)
-					return callback('Failed to Authorize');
+					console.log(JSON.stringify({ code: 'OpenApiAuthorizerException', error: exception.stack || exception, event: event, context: context }));
+					return callback('OpenApiAuthorizerException');
 				}
 			}
 
@@ -128,7 +127,7 @@ module.exports = function() {
 				return callback(null, {
 					statusCode: 500,
 					body: JSON.stringify({
-						error: 'No handler defined for method and resource.',
+						title: 'No handler defined for method and resource.',
 						details: {
 							event: event,
 							context: context
@@ -164,12 +163,13 @@ module.exports = function() {
 				});
 			}
 			catch (exception) {
+				console.log(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, null, 2));
 				var body = exception instanceof Error ? exception.toString() : exception;
 				return Promise.resolve(callback(null, new ApiResponse(body, 500)));
 			}
 		}
 		catch (exception) {
-			console.log(exception.stack || exception.toString());
+			console.log(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, null, 2));
 			return Promise.resolve(callback(null, new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500)));
 		}
 	}
