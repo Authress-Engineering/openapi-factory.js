@@ -161,18 +161,29 @@ describe('index.js', function() {
 			try {
 				var Api = require('../index');
 				var api = new Api();
-				api.SetAuthorizer(() => {
-					return Promise.reject('Fail this test');
-				});
 				api.handler({
-					type: 'TOKEN',
-					authorizationToken: 'token',
+					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
 				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); });
 			}
 			catch(e) {
 				console.error(e);
 				assert(false, e.toString());
+			}
+		});
+		it('check call to failure when no authorizer defined', function(done) {
+			try {
+				var Api = require('../index');
+				var api = new Api();
+				api.handler({
+					type: 'REQUEST',
+					methodArn: 'authorizationHandlerTest'
+				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); });
+			}
+			catch(e) {
+				console.error(e);
+				assert(true, e.toString());
+				done('fail');
 			}
 		});
 	});
@@ -315,6 +326,36 @@ describe('index.js', function() {
 			catch(e) {
 				console.error(e.stack);
 				assert(false, e.toString());
+			}
+		});
+		it('throws exception when no callback', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+			try {
+				var expectedResult = {'Value': 5};
+				var Api = require('../index');
+				var api = new Api();
+				api.get('/test', (request) => {
+					throw expectedResult;
+				});
+
+				api.handler({
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {})
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
+					done('this test should have failed');
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(true, e.toString());
+				// This failure needs to be reported directly to api gateway because no callback means there is no other way.
+				done();
 			}
 		});
 	});

@@ -1,6 +1,10 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 3.0 ##
+* Change AWS authorizer type to REQUEST from TOKEN.
+* Improve logging for request failures.
+
 ## 2.2 ##
 * paths can be specified at the top level instead of needing to put the paths in '{/proxy+}'.
 
