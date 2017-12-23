@@ -20,8 +20,9 @@ API as first class node library to generate clients, servers, and documentation.
 		new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
 	});
 
+	api.get('/items/{itemid}', (request) => {
+		console.log(request.pathParameters.itemId);
+		new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
+	});
+
 ```
-
-### To do
-
-* Add support for static headers
