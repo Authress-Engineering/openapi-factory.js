@@ -26,7 +26,7 @@ module.exports = function() {
 		};
 	};
 
-	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'].forEach((verb) => {
+	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'ANY'].forEach((verb) => {
 		this[verb.toLowerCase()] = function(route, p0, p1, p2) {
 			var params = [p0, p1, p2].filter(p => p);
 			var handler = null, headers = {}, options = {};
