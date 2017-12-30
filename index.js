@@ -2,6 +2,18 @@
 const ApiResponse = require('./src/response');
 const MapExapander = require('./src/mapExpander');
 let mapExapander = new MapExapander();
+
+// convert an error object to a json object
+let replaceErrors = (_, value) => {
+	if (value instanceof Error) {
+		let error = {};
+		Object.getOwnPropertyNames(value).forEach(key => {
+			error[key] = value[key];
+		});
+		return error;
+	}
+	return value;
+};
 module.exports = function() {
 	var apiFactory = this;
 	if(!apiFactory) { throw new Error('ApiFactory must be instantiated.'); }
@@ -88,12 +100,12 @@ module.exports = function() {
 						console.log(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
 						return callback(null, policy);
 					}, failure => {
-						console.log(JSON.stringify({ title: 'PolicyResult Failure', error: failure }, null, 2));
+						console.log(JSON.stringify({ title: 'PolicyResult Failure', error: failure }, replaceErrors, 2));
 						return callback(failure);
 					});
 				}
 				catch (exception) {
-					console.log(JSON.stringify({ code: 'OpenApiAuthorizerException', error: exception.stack || exception, event: event, context: context }));
+					console.log(JSON.stringify({ code: 'OpenApiAuthorizerException', error: exception.stack || exception, event: event, context: context }, replaceErrors));
 					return callback('OpenApiAuthorizerException');
 				}
 			}
@@ -163,13 +175,13 @@ module.exports = function() {
 				});
 			}
 			catch (exception) {
-				console.log(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, null, 2));
+				console.log(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, replaceErrors, 2));
 				var body = exception instanceof Error ? exception.toString() : exception;
 				return Promise.resolve(callback(null, new ApiResponse(body, 500)));
 			}
 		}
 		catch (exception) {
-			console.log(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, null, 2));
+			console.log(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, replaceErrors, 2));
 			return Promise.resolve(callback(null, new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500)));
 		}
 	}
