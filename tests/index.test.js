@@ -164,7 +164,7 @@ describe('index.js', function() {
 				api.handler({
 					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
-				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); });
+				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); }, () => {});
 			}
 			catch(e) {
 				console.error(e);
@@ -178,7 +178,7 @@ describe('index.js', function() {
 				api.handler({
 					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
-				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); });
+				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); }, () => {});
 			}
 			catch(e) {
 				console.error(e);
@@ -203,7 +203,7 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {}, (_, x) => x)
+				}, {}, (_, x) => x, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
@@ -231,7 +231,7 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {}, (_, x) => x)
+				}, {}, (_, x) => x, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
@@ -259,10 +259,35 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {}, (_, x) => x)
+				}, {}, (_, x) => x, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+					done();
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(false, e.toString());
+			}
+		});
+		it('check promise result to GET handler with object', function(done) {
+			try {
+				var expectedResult = {'Value': 5};
+				var Api = require('../index');
+				var api = new Api();
+				api.get('/test', (request) => {
+					return Promise.resolve({ body: expectedResult, statusCode: 201 });
+				});
+
+				api.handler({
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x, () => {})
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 					done();
 				})
 				.catch(failure => done(failure));
@@ -287,7 +312,32 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {}, (_, x) => x)
+				}, {}, (_, x) => x, () => {})
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
+					done();
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(false, e.toString());
+			}
+		});
+		it('check promise rejection to GET handler with object', function(done) {
+			try {
+				var expectedResult = {'Value': 5};
+				var Api = require('../index');
+				var api = new Api();
+				api.get('/test', (request) => {
+					throw { body: expectedResult, statusCode: 500 };
+				});
+
+				api.handler({
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
@@ -315,10 +365,38 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {}, (_, x) => x)
+				}, {}, (_, x) => x, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
+					done();
+				})
+				.catch(failure => done(failure));
+			}
+			catch(e) {
+				console.error(e.stack);
+				assert(false, e.toString());
+			}
+		});
+		it('check exception in GET handler with object', function(done) {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+			try {
+				var expectedResult = {'Value': 5};
+				var Api = require('../index');
+				var api = new Api();
+				api.get('/test', (request) => {
+					throw { body: expectedResult, statusCode: 401 };
+				});
+
+				api.handler({
+					httpMethod: 'GET',
+					resource: '/test'
+				}, {}, (_, x) => x, () => {})
+				.then(output => {
+					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+					assert.strictEqual(output.statusCode, 401, 'Error should be a 500 on a throw');
 					done();
 				})
 				.catch(failure => done(failure));
@@ -343,7 +421,7 @@ describe('index.js', function() {
 				api.handler({
 					httpMethod: 'GET',
 					resource: '/test'
-				}, {})
+				}, {}, null, () => {})
 				.then(output => {
 					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
 					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
@@ -352,11 +430,61 @@ describe('index.js', function() {
 				.catch(failure => done(failure));
 			}
 			catch(e) {
-				console.error(e.stack);
 				assert(true, e.toString());
 				// This failure needs to be reported directly to api gateway because no callback means there is no other way.
 				done();
 			}
+		});
+		it('validate default parameters', () => {
+			var expectedResult = {'Value': 5};
+			var Api = require('../index');
+			var api = new Api();
+			api.get('/test', (request) => {
+				assert.isNotNull(request.pathParameters);
+				assert.isNotNull(request.stageVariables);
+				assert.isNotNull(request.queryStringParameters);
+				assert.isNotNull(request.headers);
+				return Promise.resolve({ body: expectedResult, statusCode: 201 });
+			});
+
+			return api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, (_, x) => x, () => {})
+			.then(output => {
+				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+			});
+		});
+		it('validate default parameters do not override', () => {
+			let expectedQueryStringParameters = { h: 1 };
+			let expectedPathParameters = { h: 2 };
+			let expcetedStageVariables = { h: 3 };
+			let expectedHeaders = { h: 4 };
+
+			var expectedResult = {'Value': 5};
+			var Api = require('../index');
+			var api = new Api();
+			api.get('/test', (request) => {
+				assert.equal(request.pathParameters, expectedPathParameters);
+				assert.equal(request.stageVariables, expcetedStageVariables);
+				assert.equal(request.queryStringParameters, expectedQueryStringParameters);
+				assert.equal(request.headers, expectedHeaders);
+				return Promise.resolve({ body: expectedResult, statusCode: 201 });
+			});
+
+			return api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				stageVariables: expcetedStageVariables,
+				headers: expectedHeaders,
+				pathParameters: expectedPathParameters,
+				queryStringParameters: expectedQueryStringParameters
+			}, {}, (_, x) => x, () => {})
+			.then(output => {
+				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+			});
 		});
 	});
 });
