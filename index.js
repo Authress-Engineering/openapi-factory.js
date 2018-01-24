@@ -3,6 +3,8 @@ const ApiResponse = require('./src/response');
 const MapExapander = require('./src/mapExpander');
 let mapExapander = new MapExapander();
 
+const defaultEventObject = { headers: {}, queryStringParameters: {}, pathParameters: {}, stageVariables: {} };
+
 // convert an error object to a json object
 let replaceErrors = (_, value) => {
 	if (value instanceof Error) {
@@ -14,6 +16,7 @@ let replaceErrors = (_, value) => {
 	}
 	return value;
 };
+
 module.exports = function() {
 	var apiFactory = this;
 	if(!apiFactory) { throw new Error('ApiFactory must be instantiated.'); }
@@ -39,13 +42,12 @@ module.exports = function() {
 	};
 
 	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'ANY'].forEach((verb) => {
-		this[verb.toLowerCase()] = function(route, p0, p1, p2) {
-			var params = [p0, p1, p2].filter(p => p);
+		this[verb.toLowerCase()] = function(route, p0, p1) {
+			var params = [p0, p1].filter(p => p);
 			var handler = null, headers = {}, options = {};
 			if(params.length > 0) { handler = params[params.length - 1]; }
-			if(params.length > 1) { headers = params[params.length - 2]; }
-			if(params.length > 2) { options = params[params.length - 3]; }
-			if(params.length > 3) { throw new Error(`Method not defined with ${params.length} parameters.  Closest match is function(route, options, headers, handler).`)}
+			if(params.length > 1) { options = params[params.length - 2]; }
+			if(params.length > 2) { throw new Error(`Method not defined with ${params.length} parameters.  Closest match is function(route, options, handler).`)}
 
 			if(!isFunction(handler)) { throw new Error('Handler is not defined as a function.'); }
 
@@ -68,7 +70,8 @@ module.exports = function() {
 	});
 
 	/* This is the entry point from AWS Lambda. */
-	apiFactory.handler = function(event, context, callback) {
+	apiFactory.handler = function(event, context, callback, logger) {
+		if (!logger) { logger = console.log; }
 		if(!callback) {
 			var errorResponse = {
 				statusCode: 500,
@@ -83,7 +86,7 @@ module.exports = function() {
 					'Content-Type': 'application/json'
 				}
 			};
-			console.log(JSON.stringify({ title: 'AWS Lambda "callback" function not defined, uprade nodejs version.', error: errorResponse }, null, 2));
+			logger(JSON.stringify({ title: 'AWS Lambda "callback" function not defined, uprade nodejs version.', error: errorResponse }, null, 2));
 			throw new Error(JSON.stringify(errorResponse));
 		}
 
@@ -91,25 +94,26 @@ module.exports = function() {
 			//If this is the authorizer lambda, then call the authorizer
 			if(event.type === 'REQUEST' && event.methodArn) {
 				if(!apiFactory.Authorizer.AuthorizerFunc) {
-					console.log(JSON.stringify({ title: 'No authorizer function defined' }));
+					logger(JSON.stringify({ title: 'No authorizer function defined' }));
 					return callback('Authorizer Undefined');
 				}
 				try {
 					var resultPromise = apiFactory.Authorizer.AuthorizerFunc(event);
 					return Promise.resolve(resultPromise).then(policy => {
-						console.log(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
+						logger(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
 						return callback(null, policy);
 					}, failure => {
-						console.log(JSON.stringify({ title: 'PolicyResult Failure', error: failure }, replaceErrors, 2));
+						logger(JSON.stringify({ title: 'PolicyResult Failure', error: failure }, replaceErrors, 2));
 						return callback(failure);
 					});
 				}
 				catch (exception) {
-					console.log(JSON.stringify({ code: 'OpenApiAuthorizerException', error: exception.stack || exception, event: event, context: context }, replaceErrors));
+					logger(JSON.stringify({ code: 'OpenApiAuthorizerException', error: exception.stack || exception, event: event, context: context }, replaceErrors));
 					return callback('OpenApiAuthorizerException');
 				}
 			}
 
+			event = Object.assign({}, defaultEventObject, event);
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];
 			var anyEventHandler = apiFactory.Routes['ANY'];
 			var definedRoute = null;
@@ -163,28 +167,29 @@ module.exports = function() {
 				.then((result) => {
 					var apiResponse = result;
 					if(!(apiResponse instanceof ApiResponse)) {
-						apiResponse = new ApiResponse(apiResponse, 200);
+						apiResponse = new ApiResponse(apiResponse, apiResponse.statusCode ? null : 200);
 					}
 					return callback(null, apiResponse);
 				}, (failure) => {
 					var apiResponse = failure;
 					if(!(apiResponse instanceof ApiResponse)) {
-						apiResponse = new ApiResponse(apiResponse, 500);
+						apiResponse = new ApiResponse(apiResponse, apiResponse.statusCode ? null : 500);
 					}
 					return callback(null, apiResponse);
 				});
 			}
 			catch (exception) {
-				console.log(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, replaceErrors, 2));
+				logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, replaceErrors, 2));
 				var body = exception instanceof Error ? exception.toString() : exception;
-				return Promise.resolve(callback(null, new ApiResponse(body, 500)));
+				return Promise.resolve(callback(null, new ApiResponse(body, body && body.statusCode ? null : 500)));
 			}
 		}
 		catch (exception) {
-			console.log(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, replaceErrors, 2));
+			logger(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, replaceErrors, 2));
 			return Promise.resolve(callback(null, new ApiResponse({Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500)));
 		}
 	}
 };
 
 module.exports.Response = ApiResponse;
+module.exports.response = ApiResponse;

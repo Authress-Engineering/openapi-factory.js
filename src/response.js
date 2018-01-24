@@ -1,4 +1,8 @@
 function Response(body, statusCode, headers) {
+	if (body && (body.body || body.statusCode || body.headers) && !statusCode && !headers) {
+		return new Response(body.body, body.statusCode, body.headers);
+	}
+
 	if (!(this instanceof Response)) {
 		return new Response(body, statusCode, headers);
 	}

@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 3.1 ##
+* Provide defaults for event parameters in the path, query, stage, and headers well not specified.
+
 ## 3.0 ##
 * Change AWS authorizer type to REQUEST from TOKEN.
 * Improve logging for request failures.
