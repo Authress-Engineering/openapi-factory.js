@@ -3,8 +3,6 @@ const ApiResponse = require('./src/response');
 const MapExapander = require('./src/mapExpander');
 let mapExapander = new MapExapander();
 
-const defaultEventObject = { headers: {}, queryStringParameters: {}, pathParameters: {}, stageVariables: {} };
-
 // convert an error object to a json object
 let replaceErrors = (_, value) => {
 	if (value instanceof Error) {
@@ -113,7 +111,9 @@ module.exports = function() {
 				}
 			}
 
-			event = Object.assign({}, defaultEventObject, event);
+			event.queryStringParameters = event.queryStringParameters || {};
+			event.pathParameters = event.pathParameters || {};
+			event.stageVariables = event.stageVariables || {};
 			var mainEventHandler = apiFactory.Routes[event.httpMethod];
 			var anyEventHandler = apiFactory.Routes['ANY'];
 			var definedRoute = null;

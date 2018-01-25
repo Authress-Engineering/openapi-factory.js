@@ -443,7 +443,6 @@ describe('index.js', function() {
 				assert.isNotNull(request.pathParameters);
 				assert.isNotNull(request.stageVariables);
 				assert.isNotNull(request.queryStringParameters);
-				assert.isNotNull(request.headers);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
 
@@ -456,11 +455,33 @@ describe('index.js', function() {
 				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 			});
 		});
+		it('validate default parameters when api gateways are null', () => {
+			var expectedResult = {'Value': 5};
+			var Api = require('../index');
+			var api = new Api();
+			api.get('/test', (request) => {
+				assert.isNotNull(request.pathParameters);
+				assert.isNotNull(request.stageVariables);
+				assert.isNotNull(request.queryStringParameters);
+				return Promise.resolve({ body: expectedResult, statusCode: 201 });
+			});
+
+			return api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				stageVariables: null,
+				pathParameters: null,
+				queryStringParameters: null
+			}, {}, (_, x) => x, () => {})
+			.then(output => {
+				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
+				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+			});
+		});
 		it('validate default parameters do not override', () => {
 			let expectedQueryStringParameters = { h: 1 };
 			let expectedPathParameters = { h: 2 };
 			let expcetedStageVariables = { h: 3 };
-			let expectedHeaders = { h: 4 };
 
 			var expectedResult = {'Value': 5};
 			var Api = require('../index');
@@ -469,7 +490,6 @@ describe('index.js', function() {
 				assert.equal(request.pathParameters, expectedPathParameters);
 				assert.equal(request.stageVariables, expcetedStageVariables);
 				assert.equal(request.queryStringParameters, expectedQueryStringParameters);
-				assert.equal(request.headers, expectedHeaders);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
 
@@ -477,7 +497,6 @@ describe('index.js', function() {
 				httpMethod: 'GET',
 				resource: '/test',
 				stageVariables: expcetedStageVariables,
-				headers: expectedHeaders,
 				pathParameters: expectedPathParameters,
 				queryStringParameters: expectedQueryStringParameters
 			}, {}, (_, x) => x, () => {})
