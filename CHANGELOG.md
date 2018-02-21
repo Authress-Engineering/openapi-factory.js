@@ -3,6 +3,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 
 ## 3.1 ##
 * Provide defaults for event parameters in the path, query, stage, and headers well not specified.
+* Added two new triggers `onEvent` and `onSchedule` which will get triggered via the appropriate mechanisms.
 
 ## 3.0 ##
 * Change AWS authorizer type to REQUEST from TOKEN.
