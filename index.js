@@ -23,12 +23,14 @@ module.exports = function() {
 		AuthorizerFunc: null,
 		Options: {}
 	};
+	apiFactory.onEvent = () => {};
+	apiFactory.onSchedule = () => {};
 	apiFactory.Routes = {};
 	apiFactory.ProxyRoutes = {};
 
 	var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
-	apiFactory.SetAuthorizer = function(authorizerFunc, requestAuthorizationHeader, cacheTimeout) {
+	apiFactory.setAuthorizer = function(authorizerFunc, requestAuthorizationHeader, cacheTimeout) {
 		if(!isFunction(authorizerFunc)) { throw new Error('Authorizer Function has not been defined as a function.'); }
 		apiFactory.Authorizer = {
 			AuthorizerFunc: authorizerFunc,
@@ -37,6 +39,17 @@ module.exports = function() {
 				CacheTimeout: cacheTimeout
 			}
 		};
+	};
+	apiFactory.SetAuthorizer = apiFactory.setAuthorizer;
+
+	apiFactory.onEvent = (onEventFunc) => {
+		if(!isFunction(onEventFunc)) { throw new Error('onEvent has not been defined as a function.'); }
+		apiFactory.onEvent = onEventFunc;
+	};
+
+	apiFactory.onSchedule = (onScheduleFunc) => {
+		if(!isFunction(onScheduleFunc)) { throw new Error('onSchedule has not been defined as a function.'); }
+		apiFactory.onSchedule = onScheduleFunc;
 	};
 
 	['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'ANY'].forEach((verb) => {
@@ -89,6 +102,46 @@ module.exports = function() {
 		}
 
 		try {
+			// this is a scheduled trigger
+			if (event.source === 'aws.events') {
+				try {
+					var resultPromise = apiFactory.onSchedule(event);
+					if(!resultPromise) { return callback(null, null); }
+
+					return Promise.resolve(resultPromise)
+					.then(result => {
+						return callback(null, result);
+					}, failure => {
+						return callback(failure);
+					});
+				}
+				catch (exception) {
+					logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception }, replaceErrors, 2));
+					var body = exception instanceof Error ? exception.toString() : exception;
+					return Promise.resolve(callback('Internal Error, check logs'));
+				}
+			}
+
+			// this is an event triggered lambda
+			if (event.Records) {
+				try {
+					var resultPromise = apiFactory.onEvent(event);
+					if(!resultPromise) { return callback(null, null); }
+
+					return Promise.resolve(resultPromise)
+					.then(result => {
+						return callback(null, result);
+					}, failure => {
+						return callback(failure);
+					});
+				}
+				catch (exception) {
+					logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, replaceErrors, 2));
+					var body = exception instanceof Error ? exception.toString() : exception;
+					return Promise.resolve(callback('Internal Error, check logs'));
+				}
+			}
+
 			//If this is the authorizer lambda, then call the authorizer
 			if(event.type === 'REQUEST' && event.methodArn) {
 				if(!apiFactory.Authorizer.AuthorizerFunc) {
