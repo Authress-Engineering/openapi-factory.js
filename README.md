@@ -46,7 +46,29 @@ API as first class node library to generate clients, servers, and documentation.
 
 	api.get('/items/{itemid}', (request) => {
 		console.log(request.pathParameters.itemId);
-		new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
+		return new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
+	});
+	
+	// Example: AWS Api Gateway magic string handling for CORS and 404 fallbacks.
+	api.options('/{proxy+}', () => {
+	  	return {
+			statusCode: 200,
+			headers: {
+			    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key',
+			    'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
+			    'Access-Control-Allow-Origin': '*'
+			}
+	  	};
+	});
+
+	api.any('/{proxy+}', () => {
+	  return {
+	  	statusCode: 404,
+		headers: {
+			'Content-Type': 'application/json',
+	    		'Access-Control-Allow-Origin': '*'
+		}
+	  };
 	});
 
 ```
