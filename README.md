@@ -62,13 +62,13 @@ API as first class node library to generate clients, servers, and documentation.
 	});
 
 	api.any('/{proxy+}', () => {
-	  return {
-	  	statusCode: 404,
-		headers: {
-			'Content-Type': 'application/json',
-	    		'Access-Control-Allow-Origin': '*'
-		}
-	  };
+		 return {
+			statusCode: 404,
+			headers: {
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': '*'
+			}
+		 };
 	});
 
 ```
