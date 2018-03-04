@@ -220,13 +220,13 @@ module.exports = function() {
 				.then((result) => {
 					var apiResponse = result;
 					if(!(apiResponse instanceof ApiResponse)) {
-						apiResponse = new ApiResponse(apiResponse, apiResponse.statusCode ? null : 200);
+						apiResponse = new ApiResponse(apiResponse, apiResponse && apiResponse.statusCode ? null : 200);
 					}
 					return callback(null, apiResponse);
 				}, (failure) => {
 					var apiResponse = failure;
 					if(!(apiResponse instanceof ApiResponse)) {
-						apiResponse = new ApiResponse(apiResponse, apiResponse.statusCode ? null : 500);
+						apiResponse = new ApiResponse(apiResponse, apiResponse && apiResponse.statusCode ? null : 500);
 					}
 					return callback(null, apiResponse);
 				});
