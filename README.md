@@ -30,6 +30,9 @@ API as first class node library to generate clients, servers, and documentation.
 	// converts dynamic variables paths
 	api.get('/example/{id}/subpath', request => {
 		let idFromPath = request.pathParameters.id;
+		let stageVariable = request.stageVariables.VARIABLE_NAME;
+		let queryStringParameterValue = request.queryStringParameters.QUERY_NAME;
+		let headers = request.headers.HEADER_NAME;
 	});
 
 	api.setAuthorizer(request => {
