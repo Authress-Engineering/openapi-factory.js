@@ -105,7 +105,7 @@ module.exports = function() {
 			// this is a scheduled trigger
 			if (event.source === 'aws.events') {
 				try {
-					var resultPromise = apiFactory.onSchedule(event);
+					var resultPromise = apiFactory.onSchedule(event, context);
 					if(!resultPromise) { return callback(null, null); }
 
 					return Promise.resolve(resultPromise)
@@ -125,7 +125,7 @@ module.exports = function() {
 			// this is an event triggered lambda
 			if (event.Records) {
 				try {
-					var resultPromise = apiFactory.onEvent(event);
+					var resultPromise = apiFactory.onEvent(event, context);
 					if(!resultPromise) { return callback(null, null); }
 
 					return Promise.resolve(resultPromise)
