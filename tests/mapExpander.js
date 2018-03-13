@@ -61,6 +61,17 @@ describe('mapExpander.js', () => {
 				}
 			},
 			{
+				name: 'throw exception on duplicate item',
+				inputMap: {
+					'items': {
+						_value: 'items-value'
+					}
+				},
+				path: '/items',
+				expectedError: new Error('Path already exists: /items'),
+				expectedOutputMap: null
+			},
+			{
 				name: 'sub resources with wild cards',
 				inputMap: {},
 				path: '/resource/{resource}/subresource/{subresource}',
@@ -136,8 +147,14 @@ describe('mapExpander.js', () => {
 		testCases.map(test => {
 			it(test.name, () => {
 				let mapExpander = new MapExpander();
-				let resultmap = mapExpander.expandMap(test.inputMap, test.path, testValue);
-				expect(resultmap).to.eql(test.expectedOutputMap);
+				let resultMap = null;
+				try {
+					resultMap = mapExpander.expandMap(test.inputMap, test.path, testValue);
+					expect(resultMap).to.eql(test.expectedOutputMap);
+					expect(!!test.expectedError).to.eql(false);
+				} catch (error) {
+					expect(error.message).to.eql(test.expectedError.message);
+				}
 			});
 		});
 	});

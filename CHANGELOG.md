@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 3.2 ##
+* Prevent registration of duplicate paths
+
 ## 3.1 ##
 * Provide defaults for event parameters in the path, query, stage, and headers well not specified.
 * Added two new triggers `onEvent` and `onSchedule` which will get triggered via the appropriate mechanisms.
