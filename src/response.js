@@ -13,8 +13,7 @@ function Response(body, statusCode, headers) {
 		this.headers = headers || {
 			'Content-Type': 'application/octet-stream'
 		};
-	}
-	else {
+	} else {
 		this.body = JSON.stringify(body || {});
 		this.headers = headers || {
 			'Content-Type': 'application/json'
