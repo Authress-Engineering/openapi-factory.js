@@ -1,36 +1,10 @@
 'use strict';
-const esprima = require('esprima');
-const mocha = require('mocha');
+const { describe, it } = require('mocha');
 const assert = require('chai').assert;
-const fs = require('fs');
-const path = require('path');
 
 const responsePath = '../src/response.js';
 
 describe('response.js', function() {
-	describe('Syntax', function() {
-		it('Should be valid Javascript', function() {
-			try {
-				let userStringToTest = fs.readFileSync(path.resolve('src/response.js'));
-				esprima.parse(userStringToTest);
-				assert(true);
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, JSON.stringify(e, null, 2));
-			}
-		});
-		it('Should be valid node', function() {
-			try {
-				let response = require(responsePath);
-				assert(true);
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, JSON.stringify(e, null, 2));
-			}
-		});
-	});
 	describe('validate contructor', function() {
 		it('body is json string when null', function() {
 			let Response = require(responsePath);
@@ -53,7 +27,7 @@ describe('response.js', function() {
 		});
 		it('body is json full object is set as first parameter', function() {
 			let Response = require(responsePath);
-			let testObject = {field: 'value'};
+			let testObject = { field: 'value' };
 			let testResponse = {
 				body: testObject,
 				statusCode: 201

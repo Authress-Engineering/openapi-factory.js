@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 4.0 ##
+* Now comes with the `async` handler, feel free to await all the calls.
+
 ## 3.2 ##
 * Prevent registration of duplicate paths
 
