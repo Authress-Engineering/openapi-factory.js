@@ -81,7 +81,7 @@ module.exports = function() {
 	});
 
 	/* This is the entry point from AWS Lambda. */
-	apiFactory.handler = async (event, context, overrideLogger) => {
+	apiFactory.handler = async (event, context, _, overrideLogger) => {
 		let logger = overrideLogger || console.log;
 
 		try {
