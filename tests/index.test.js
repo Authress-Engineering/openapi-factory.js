@@ -1,51 +1,23 @@
 'use strict';
-const esprima = require('esprima');
-const mocha = require('mocha');
+const { describe, it, beforeEach, afterEach } = require('mocha');
 const chai = require('chai');
-const fs = require('fs');
-const path = require('path');
+const { assert } = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 
 const MapExpander = require('../src/mapExpander');
+let Api = require('../index');
 
-const assert = chai.assert;
-const expect = chai.expect;
 chai.use(sinonChai);
 
 let sandbox;
 beforeEach(() => { sandbox = sinon.sandbox.create(); });
 afterEach(() => sandbox.restore());
 
-describe('index.js', function() {
-	describe('Syntax', function() {
-		it('Should be valid Javascript', function() {
-			try {
-				let userStringToTest = fs.readFileSync(path.resolve('index.js'));
-				esprima.parse(userStringToTest);
-				assert(true);
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, JSON.stringify(e, null, 2));
-			}
-		});
-		it('Should be valid node', function() {
-			try {
-				var app = require('../index');
-				assert(true);
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, JSON.stringify(e, null, 2));
-			}
-		});
-	});
-	describe('methods', function() {
-		it('Check expected API Methods', function() {
-			var isFunction = (obj) => { return !!(obj && obj.constructor && obj.call && obj.apply); };
-			var Api = require('../index');
-			var api = new Api();
+describe('index.js', () => {
+	describe('methods', () => {
+		it('Check expected API Methods', () => {
+			let api = new Api();
 			assert.isFunction(api.head, 'HEAD has not been defined.');
 			assert.isFunction(api.get, 'GET has not been defined.');
 			assert.isFunction(api.put, 'PUT has not been defined.');
@@ -55,455 +27,284 @@ describe('index.js', function() {
 			assert.isFunction(api.any, 'ANY has not been defined.');
 		});
 	});
-	describe('authorizer', function() {
-		it('check call to default authorizerFunc', function() {
-			try {
-				var Api = require('../index');
-				var api = new Api();
-				assert(api.Authorizer.AuthorizerFunc === null);
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
-			}
+	describe('authorizer', () => {
+		it('check call to default authorizerFunc', () => {
+			let api = new Api();
+			assert(api.Authorizer.AuthorizerFunc === null);
 		});
-		it('check call to false authorizerFunc', function() {
+		it('check call to false authorizerFunc', () => {
 			try {
-				var Api = require('../index');
-				var api = new Api();
+				let api = new Api();
 				api.SetAuthorizer(() => false);
-				var result = api.Authorizer.AuthorizerFunc();
+				let result = api.Authorizer.AuthorizerFunc();
 				//result should be false;
 				assert(!result);
-			}
-			catch(e) {
+			} catch (e) {
 				console.error(e);
 				assert(false, e.toString());
 			}
 		});
-		it('check call to false authorizerFunc', function(done) {
+		it('check call to false authorizerFunc', async () => {
+			let api = new Api();
+			api.SetAuthorizer(() => {
+				return Promise.reject('Unauthorized');
+			});
 			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.SetAuthorizer(() => {
-					return Promise.reject('Unauthorized');
-				});
-				var result = api.Authorizer.AuthorizerFunc()
-				.then(bad => {
-					done('Should have failed');
-				}, correctFailure => {
-					done();
-				});
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
+				await api.Authorizer.AuthorizerFunc();
+				throw 'Should have failed';
+			} catch (e) {
+				return;
 			}
 		});
-		it('check call to success authorizerFunc', function(done) {
+		it('check call to success authorizerFunc', async () => {
+			let api = new Api();
+			api.SetAuthorizer(() => {
+				return Promise.resolve();
+			});
+			await api.Authorizer.AuthorizerFunc();
+		});
+		it('check call to success authorizer', async () => {
+			let api = new Api();
+			api.SetAuthorizer(() => {
+				return Promise.resolve();
+			});
+			await api.Authorizer.AuthorizerFunc();
+		});
+		it('check call to failure authorizer', async () => {
+			let api = new Api();
+			api.SetAuthorizer(() => {
+				return Promise.reject('Fail this test');
+			});
+			
 			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.SetAuthorizer(() => {
-					return Promise.resolve();
-				});
-				var result = api.Authorizer.AuthorizerFunc()
-				.then(success => {
-					done();
-				}, correctFailure => {
-					done(`Should not have failed: ${correctFailure}`);
-				});
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
+				let result = await api.Authorizer.AuthorizerFunc();
+				throw `Should not have passed: ${result}`;
+			} catch (e) {
+				return;
 			}
 		});
-		it('check call to success authorizer', function(done) {
+		it('check call to failure authorizer handler', async () => {
+			let api = new Api();
 			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.SetAuthorizer(() => {
-					return Promise.resolve();
-				});
-				var result = api.Authorizer.AuthorizerFunc()
-				.then(success => {
-					done();
-				}, incorrectFailure => {
-					done(`Should not have failed: ${incorrectFailure}`);
-				});
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
-			}
-		});
-		it('check call to failure authorizer', function(done) {
-			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.SetAuthorizer(() => {
-					return Promise.reject('Fail this test');
-				});
-				api.Authorizer.AuthorizerFunc()
-				.then(incorrectSuccess => {
-					done(`Should not have passed: ${incorrectSuccess}`);
-				}, correctFailure => {
-					done();
-				});
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
-			}
-		});
-		it('check call to failure authorizer handler', function(done) {
-			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.handler({
+				await api.handler({
 					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
-				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); }, () => {});
-			}
-			catch(e) {
-				console.error(e);
-				assert(false, e.toString());
+				}, {}, () => {});
+				throw 'This test should have failed';
+			} catch (e) {
+				return;
 			}
 		});
-		it('check call to failure when no authorizer defined', function(done) {
+		it('check call to failure when no authorizer defined', async () => {
 			try {
-				var Api = require('../index');
-				var api = new Api();
-				api.handler({
+				let api = new Api();
+				await api.handler({
 					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
-				}, {}, (successfulFailure, incorrectSuccess) => { incorrectSuccess ? done('This test should have failed') : done(); }, () => {});
-			}
-			catch(e) {
-				console.error(e);
-				assert(true, e.toString());
-				done('fail');
+				}, {}, () => {});
+				throw 'This test should have failed';
+			} catch (e) {
+				return;
 			}
 		});
 	});
-	describe('handler', function() {
-		it('check call to ANY handler', function(done) {
+	describe('handler', () => {
+		it('check call to ANY handler', async () => {
 			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
 			mapExpanderMock.expects('expandMap').returns({});
 			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.any('/test', (request) => {
-					return new Api.Response(expectedResult);
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check call to GET handler', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					return new Api.Response(expectedResult);
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check promise result to GET handler', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					return Promise.resolve(new Api.Response(expectedResult));
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check promise result to GET handler with object', function(done) {
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					return Promise.resolve({ body: expectedResult, statusCode: 201 });
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check promise rejection to GET handler', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					return Promise.reject(expectedResult);
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check promise rejection to GET handler with object', function(done) {
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					throw { body: expectedResult, statusCode: 500 };
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check exception in GET handler', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					throw expectedResult;
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('check exception in GET handler with object', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					throw { body: expectedResult, statusCode: 401 };
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, (_, x) => x, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 401, 'Error should be a 500 on a throw');
-					done();
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				console.error(e.stack);
-				assert(false, e.toString());
-			}
-		});
-		it('throws exception when no callback', function(done) {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
-			try {
-				var expectedResult = {'Value': 5};
-				var Api = require('../index');
-				var api = new Api();
-				api.get('/test', (request) => {
-					throw expectedResult;
-				});
-
-				api.handler({
-					httpMethod: 'GET',
-					resource: '/test'
-				}, {}, null, () => {})
-				.then(output => {
-					assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-					assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
-					done('this test should have failed');
-				})
-				.catch(failure => done(failure));
-			}
-			catch(e) {
-				assert(true, e.toString());
-				// This failure needs to be reported directly to api gateway because no callback means there is no other way.
-				done();
-			}
-		});
-		it('validate default parameters', () => {
-			var expectedResult = {'Value': 5};
-			var Api = require('../index');
-			var api = new Api();
-			api.get('/test', (request) => {
-				assert.isNotNull(request.pathParameters);
-				assert.isNotNull(request.stageVariables);
-				assert.isNotNull(request.queryStringParameters);
-				return Promise.resolve({ body: expectedResult, statusCode: 201 });
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.any('/test', () => {
+				return new Api.Response(expectedResult);
 			});
 
-			return api.handler({
+			let output = await api.handler({
 				httpMethod: 'GET',
 				resource: '/test'
-			}, {}, (_, x) => x, () => {})
-			.then(output => {
-				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
-			});
+			}, {}, () => {});
+			
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 		});
-		it('validate default parameters when api gateways are null', () => {
-			var expectedResult = {'Value': 5};
-			var Api = require('../index');
-			var api = new Api();
-			api.get('/test', (request) => {
+		it('check call to GET handler', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				return new Api.Response(expectedResult);
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+		});
+		it('check promise result to GET handler', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				return Promise.resolve(new Api.Response(expectedResult));
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+		});
+		it('check promise result to GET handler with object', async () => {
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				return Promise.resolve({ body: expectedResult, statusCode: 201 });
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+		});
+		it('check promise rejection to GET handler', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				return Promise.reject(expectedResult);
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
+		});
+		it('check promise rejection to GET handler with object', async () => {
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				throw { body: expectedResult, statusCode: 500 };
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
+		});
+		it('check exception in GET handler', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				throw expectedResult;
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
+		});
+		it('check exception in GET handler with object', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns(null);
+
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', () => {
+				throw { body: expectedResult, statusCode: 401 };
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 401, 'Error should be a 401 on a throw that matches response object');
+		});
+		it('validate default parameters', async () => {
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', request => {
 				assert.isNotNull(request.pathParameters);
-				assert.isNotNull(request.stageVariables);
+				assert.isNotNull(request.stageletiables);
 				assert.isNotNull(request.queryStringParameters);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
 
-			return api.handler({
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test'
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+		});
+		it('validate default parameters when api gateways are null', async () => {
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', request => {
+				assert.isNotNull(request.pathParameters);
+				assert.isNotNull(request.stageVariables);
+				assert.isNotNull(request.queryStringParameters);
+				return { body: expectedResult, statusCode: 201 };
+			});
+
+			let output = await api.handler({
 				httpMethod: 'GET',
 				resource: '/test',
 				stageVariables: null,
 				pathParameters: null,
 				queryStringParameters: null
-			}, {}, (_, x) => x, () => {})
-			.then(output => {
-				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
-			});
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 		});
-		it('validate default parameters do not override', () => {
+		it('validate default parameters do not override', async () => {
 			let expectedQueryStringParameters = { h: 1 };
 			let expectedPathParameters = { h: 2 };
 			let expcetedStageVariables = { h: 3 };
 
-			var expectedResult = {'Value': 5};
-			var Api = require('../index');
-			var api = new Api();
-			api.get('/test', (request) => {
+			let expectedResult = { value: 5 };
+			let api = new Api();
+			api.get('/test', request => {
 				assert.equal(request.pathParameters, expectedPathParameters);
 				assert.equal(request.stageVariables, expcetedStageVariables);
 				assert.equal(request.queryStringParameters, expectedQueryStringParameters);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
 
-			return api.handler({
+			let output = await api.handler({
 				httpMethod: 'GET',
 				resource: '/test',
 				stageVariables: expcetedStageVariables,
 				pathParameters: expectedPathParameters,
 				queryStringParameters: expectedQueryStringParameters
-			}, {}, (_, x) => x, () => {})
-			.then(output => {
-				assert.deepEqual(JSON.parse(output.body), expectedResult, `Output data does not match expected.`);
-				assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
-			});
+			}, {}, () => {});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 		});
 	});
 });

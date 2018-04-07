@@ -8,7 +8,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "eslint --ext .js src test",
+    "lint": "eslint --ext .js src test index.js",
     "test": "mocha tests/**/*.js -R spec"
   },
   "dependencies": {},
@@ -16,7 +16,6 @@
     "chai": "^3.5.0",
     "commander": "^2.9.0",
     "eslint-config-cimpress-atsquad": "^1.0.28",
-    "esprima": "^2.7.2",
     "glob": "^5.0.15",
     "mocha": "^2.4.5",
     "sinon": "^1.17.3",

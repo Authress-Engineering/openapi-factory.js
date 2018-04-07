@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 class MapExpander {
 	expandMap(currentMap, pathString, mapValue) {
 		let pathTokens = pathString.split('/');
