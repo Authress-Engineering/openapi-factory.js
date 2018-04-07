@@ -155,19 +155,13 @@ module.exports = function() {
 			}
 
 			if (!definedRoute) {
-				return {
-					statusCode: 500,
-					body: JSON.stringify({
-						title: 'No handler defined for method and resource.',
-						details: {
-							event: event,
-							context: context
-						}
-					}),
-					headers: {
-						'Content-Type': 'application/json'
+				return new ApiResponse({
+					title: 'No handler defined for method and resource.',
+					details: {
+						event: event,
+						context: context
 					}
-				};
+				}, 500);
 			}
 
 			let lambda = definedRoute.Handler;
@@ -185,14 +179,16 @@ module.exports = function() {
 				}
 				return apiResponse;
 			} catch (exception) {
-				let apiResponse = exception;
-				if (!(apiResponse instanceof ApiResponse)) {
-					return new ApiResponse(apiResponse, apiResponse && apiResponse.statusCode ? null : 500);
+				if (exception instanceof ApiResponse) {
+					return exception;
 				}
 
-				logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, replaceErrors, 2));
-				let body = exception instanceof Error ? exception.toString() : exception;
-				return new ApiResponse(body, body && body.statusCode ? null : 500);
+				if (exception instanceof Error) {
+					logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: exception }, replaceErrors, 2));
+					return new ApiResponse({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
+				}
+
+				return new ApiResponse(exception, exception && exception.statusCode ? null : 500);
 			}
 		} catch (exception) {
 			logger(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, replaceErrors, 2));

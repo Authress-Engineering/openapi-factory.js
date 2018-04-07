@@ -10,14 +10,10 @@ function Response(body, statusCode, headers) {
 	this.statusCode = statusCode || 200;
 	if (body && body instanceof Buffer) {
 		this.body = body;
-		this.headers = headers || {
-			'Content-Type': 'application/octet-stream'
-		};
+		this.headers = Object.assign({ 'Content-Type': 'application/octet-stream' }, headers);
 	} else {
 		this.body = JSON.stringify(body || {});
-		this.headers = headers || {
-			'Content-Type': 'application/json'
-		};
+		this.headers = Object.assign({ 'Content-Type': 'application/json' }, headers);
 	}
 }
 
