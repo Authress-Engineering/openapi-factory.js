@@ -11,7 +11,7 @@ API as first class node library to generate clients, servers, and documentation.
 	var ApiFactory = require('openapi-factory');
 	var api = new ApiFactory();
 
-	api.get('/example', request => {
+	api.get('/example', async request => {
 		// which auto wraps => body: { value: 'test' }, statusCode => 200, headers => application/json
 		return { value: 'test' };
 
@@ -47,7 +47,7 @@ API as first class node library to generate clients, servers, and documentation.
 		console.log('triggered by a schedule');
 	});
 
-	api.get('/items/{itemid}', (request) => {
+	api.get('/items/{itemid}', async request => {
 		console.log(request.pathParameters.itemId);
 		return new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
 	});

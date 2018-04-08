@@ -10,10 +10,10 @@ function Response(body, statusCode, headers) {
 	this.statusCode = statusCode || 200;
 	if (body && body instanceof Buffer) {
 		this.body = body;
-		this.headers = Object.assign({ 'Content-Type': 'application/octet-stream' }, headers);
+		this.headers = Object.assign({ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }, headers);
 	} else {
 		this.body = JSON.stringify(body || {});
-		this.headers = Object.assign({ 'Content-Type': 'application/json' }, headers);
+		this.headers = Object.assign({ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }, headers);
 	}
 }
 
