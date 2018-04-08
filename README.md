@@ -6,6 +6,9 @@ API as first class node library to generate clients, servers, and documentation.
 [![Build Status](https://travis-ci.org/wparad/openapi-factory.js.svg?branch=master)](https://travis-ci.org/wparad/openapi-factory.js)
 
 ### Create an API
+The default headers returned unless overriden are
+* For a JSON Object: `{ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }`
+* For a binary Object: `{ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }`
 
 ```javascript
 	var ApiFactory = require('openapi-factory');
