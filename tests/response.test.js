@@ -1,4 +1,3 @@
-'use strict';
 const { describe, it } = require('mocha');
 const assert = require('chai').assert;
 
@@ -13,10 +12,10 @@ describe('response.js', function() {
 		});
 		it('body is json string', function() {
 			let Response = require(responsePath);
-			let testObject = {field: 'value'};
+			let testObject = { field: 'value' };
 			let response = new Response(testObject);
 			assert.equal(response.body, JSON.stringify(testObject));
-			assert.equal(response.headers['Content-Type'], 'application/json');
+			assert.equal(response.headers['Content-Type'], 'application/links+json');
 		});
 		it('body is json binary', function() {
 			let Response = require(responsePath);
@@ -35,7 +34,7 @@ describe('response.js', function() {
 			let response = new Response(testResponse);
 			assert.equal(response.body, JSON.stringify(testObject));
 			assert.equal(response.statusCode, 201);
-			assert.equal(response.headers['Content-Type'], 'application/json');
+			assert.equal(response.headers['Content-Type'], 'application/links+json');
 		});
 	});
 });
