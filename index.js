@@ -191,6 +191,9 @@ module.exports = function() {
 				return new ApiResponse(exception, exception && exception.statusCode ? null : 500);
 			}
 		} catch (exception) {
+			if (exception.match(/Unauthorized/i)) {
+				throw exception;
+			}
 			logger(JSON.stringify({ title: 'OpenApiFailureFactoryException', error: exception.stack || exception.toString() }, replaceErrors, 2));
 			return new ApiResponse({ Error: 'Failed to load lambda function', Details: exception.stack || exception }, 500);
 		}
