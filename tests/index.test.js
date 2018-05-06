@@ -30,13 +30,13 @@ describe('index.js', () => {
 	describe('authorizer', () => {
 		it('check call to default authorizerFunc', () => {
 			let api = new Api();
-			assert(api.Authorizer.AuthorizerFunc === null);
+			assert(api.Authorizer === null);
 		});
 		it('check call to false authorizerFunc', () => {
 			try {
 				let api = new Api();
 				api.SetAuthorizer(() => false);
-				let result = api.Authorizer.AuthorizerFunc();
+				let result = api.Authorizer();
 				//result should be false;
 				assert(!result);
 			} catch (e) {
@@ -50,7 +50,7 @@ describe('index.js', () => {
 				return Promise.reject('Unauthorized');
 			});
 			try {
-				await api.Authorizer.AuthorizerFunc();
+				await api.Authorizer();
 				throw 'Should have failed';
 			} catch (e) {
 				return;
@@ -61,14 +61,14 @@ describe('index.js', () => {
 			api.SetAuthorizer(() => {
 				return Promise.resolve();
 			});
-			await api.Authorizer.AuthorizerFunc();
+			await api.Authorizer();
 		});
 		it('check call to success authorizer', async () => {
 			let api = new Api();
 			api.SetAuthorizer(() => {
 				return Promise.resolve();
 			});
-			await api.Authorizer.AuthorizerFunc();
+			await api.Authorizer();
 		});
 		it('check call to failure authorizer', async () => {
 			let api = new Api();
@@ -77,7 +77,7 @@ describe('index.js', () => {
 			});
 			
 			try {
-				let result = await api.Authorizer.AuthorizerFunc();
+				let result = await api.Authorizer();
 				throw `Should not have passed: ${result}`;
 			} catch (e) {
 				return;
