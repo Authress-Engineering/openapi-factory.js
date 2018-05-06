@@ -32,9 +32,9 @@ The default headers returned unless overriden are
 
 	// converts dynamic variables paths
 	api.get('/example/{id}/subpath', request => {
-		let idFromPath = request.pathParameters.id;
-		let stageVariable = request.stageVariables.VARIABLE_NAME;
-		let queryStringParameterValue = request.queryStringParameters.QUERY_NAME;
+		let idFromPath = request.path.id;
+		let stageVariable = request.stage.VARIABLE_NAME;
+		let query = request.query.QUERY_NAME;
 		let headers = request.headers.HEADER_NAME;
 	});
 
@@ -51,7 +51,7 @@ The default headers returned unless overriden are
 	});
 
 	api.get('/items/{itemid}', async request => {
-		console.log(request.pathParameters.itemId);
+		console.log(request.path.itemId);
 		return new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
 	});
 	

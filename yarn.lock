@@ -242,6 +242,10 @@ doctrine@^2.1.0:
   dependencies:
     esutils "^2.0.2"
 
+error-object-polyfill@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/error-object-polyfill/-/error-object-polyfill-1.0.11.tgz#273ac30ef751c11bfca5f997efbb42695194d9a2"
+
 escape-string-regexp@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.2.tgz#4dbc2fe674e71949caf3fb2695ce7f2dc1d9a8d1"
