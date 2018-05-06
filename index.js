@@ -3,8 +3,10 @@ const MapExapander = require('./src/mapExpander');
 let mapExapander = new MapExapander();
 let isFunction = obj => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
+let apiFactory = null;
 class ApiFactory {
 	constructor(overrideLogger) {
+		apiFactory = this;
 		this.Authorizer = null;
 		this.onEvent = () => {};
 		this.onSchedule = () => {};
@@ -60,12 +62,12 @@ class ApiFactory {
 			Handler: handler,
 			Options: options || {}
 		};
-		if (!this.Routes[verb]) {
-			this.Routes[verb] = {};
-			this.ProxyRoutes[verb] = {};
+		if (!apiFactory.Routes[verb]) {
+			apiFactory.Routes[verb] = {};
+			apiFactory.ProxyRoutes[verb] = {};
 		}
-		this.Routes[verb][path] = api;
-		this.ProxyRoutes[verb] = mapExapander.expandMap(this.ProxyRoutes[verb], path, api);
+		apiFactory.Routes[verb][path] = api;
+		apiFactory.ProxyRoutes[verb] = mapExapander.expandMap(apiFactory.ProxyRoutes[verb], path, api);
 	}
 
 	/* This is the entry point from AWS Lambda. */
@@ -75,8 +77,8 @@ class ApiFactory {
 		event.stage = event.stageVariables || {};
 
 		if (event.path && !event.type) {
-			let mainEventHandler = this.Routes[event.httpMethod];
-			let anyEventHandler = this.Routes.ANY;
+			let mainEventHandler = apiFactory.Routes[event.httpMethod];
+			let anyEventHandler = apiFactory.Routes.ANY;
 			let definedRoute = null;
 
 			let proxyPath = '/{proxy+}';
@@ -89,7 +91,7 @@ class ApiFactory {
 				}
 			} else {
 				// if it is a proxy path then then look up the proxied value.
-				let map = mapExapander.getMapValue(this.ProxyRoutes[event.httpMethod], event.pathParameters.proxy);
+				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.pathParameters.proxy);
 				if (map) {
 					definedRoute = map.value;
 					event.pathParameters = map.tokens;
@@ -128,7 +130,7 @@ class ApiFactory {
 			} catch (e) {
 				if (e instanceof Resp) { return e; }
 				if (e instanceof Error) {
-					this.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e }, null, 2));
+					apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e }, null, 2));
 					return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 				}
 				return new Resp(e, e && e.statusCode ? null : 500);
@@ -137,16 +139,16 @@ class ApiFactory {
 
 		//If this is the authorizer lambda, then call the authorizer
 		if (event.type === 'REQUEST' && event.methodArn) {
-			if (!this.Authorizer) {
-				this.logger(JSON.stringify({ title: 'No authorizer function defined' }));
+			if (!apiFactory.Authorizer) {
+				apiFactory.logger(JSON.stringify({ title: 'No authorizer function defined' }));
 				throw new Error('Authorizer Undefined');
 			}
 			try {
-				let policy = await this.Authorizer(event);
-				this.logger(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
+				let policy = await apiFactory.Authorizer(event);
+				apiFactory.logger(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
 				return policy;
 			} catch (exception) {
-				this.logger(JSON.stringify({ title: 'PolicyResult Failure', error: exception }, null, 2));
+				apiFactory.logger(JSON.stringify({ title: 'PolicyResult Failure', error: exception }, null, 2));
 				throw exception;
 			}
 		}
@@ -154,19 +156,19 @@ class ApiFactory {
 		// this is a scheduled trigger
 		if (event.source === 'aws.events') {
 			try {
-				return await this.onSchedule(event, context);
+				return await apiFactory.onSchedule(event, context);
 			} catch (exception) {
-				this.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception }, null, 2));
+				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception }, null, 2));
 				throw exception;
 			}
 		}
 
-		// this is an event triggered lambda
+		// This is an event triggered lambda
 		if (event.Records || event.messages) {
 			try {
-				return await this.onEvent(event, context);
+				return await apiFactory.onEvent(event, context);
 			} catch (exception) {
-				this.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
+				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
 				throw exception;
 			}
 		}
