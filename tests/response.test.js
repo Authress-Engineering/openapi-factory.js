@@ -1,40 +1,105 @@
 const { describe, it } = require('mocha');
-const assert = require('chai').assert;
+const { expect } = require('chai');
+const Response = require('../src/response');
 
-const responsePath = '../src/response.js';
-
-describe('response.js', function() {
-	describe('validate contructor', function() {
-		it('body is json string when null', function() {
-			let Response = require(responsePath);
-			let response = new Response();
-			assert.equal(response.body, JSON.stringify({}));
-		});
-		it('body is json string', function() {
-			let Response = require(responsePath);
+describe('response.js', () => {
+	describe('constructor()', async () => {
+		let tests = {};
+		tests[Symbol.iterator] = function* () {
 			let testObject = { field: 'value' };
-			let response = new Response(testObject);
-			assert.equal(response.body, JSON.stringify(testObject));
-			assert.equal(response.headers['Content-Type'], 'application/links+json');
-		});
-		it('body is json binary', function() {
-			let Response = require(responsePath);
-			let stringTest = 'unit test';
-			let response = new Response(Buffer.from(stringTest));
-			assert.equal(response.body.toString('utf-8'), stringTest);
-			assert.equal(response.headers['Content-Type'], 'application/octet-stream');
-		});
-		it('body is json full object is set as first parameter', function() {
-			let Response = require(responsePath);
-			let testObject = { field: 'value' };
-			let testResponse = {
-				body: testObject,
-				statusCode: 201
+			let stringValue = 'unit-test-string';
+			let bufferObject = Buffer.from(stringValue);
+			yield {
+				name: 'body is json string when null',
+				params: [],
+				expectedResultObject: {
+					body: JSON.stringify({}),
+					statusCode: 200,
+					headers: {
+						'Content-Type': 'application/links+json',
+						'Access-Control-Allow-Origin': '*'
+					}
+				}
 			};
-			let response = new Response(testResponse);
-			assert.equal(response.body, JSON.stringify(testObject));
-			assert.equal(response.statusCode, 201);
-			assert.equal(response.headers['Content-Type'], 'application/links+json');
-		});
+			
+			yield {
+				name: 'body is json string',
+				params: [testObject],
+				expectedResultObject: {
+					body: JSON.stringify(testObject),
+					statusCode: 200,
+					headers: {
+						'Content-Type': 'application/links+json',
+						'Access-Control-Allow-Origin': '*'
+					}
+				}
+			};
+
+			yield {
+				name: 'body is binary',
+				params: [bufferObject],
+				expectedResultObject: {
+					body: bufferObject,
+					statusCode: 200,
+					headers: {
+						'Content-Type': 'application/octet-stream',
+						'Access-Control-Allow-Origin': '*'
+					}
+				}
+			};
+
+			yield {
+				name: 'body is json full object is set as first parameter',
+				params: [testObject, 201],
+				expectedResultObject: {
+					body: JSON.stringify(testObject),
+					statusCode: 201,
+					headers: {
+						'Content-Type': 'application/links+json',
+						'Access-Control-Allow-Origin': '*'
+					}
+				}
+			};
+
+			yield {
+				name: 'No body set with status code',
+				params: [{
+					statusCode: 400
+				}],
+				expectedResultObject: {
+					body: JSON.stringify({}),
+					statusCode: 400,
+					headers: {
+						'Content-Type': 'application/links+json',
+						'Access-Control-Allow-Origin': '*'
+					}
+				}
+			};
+
+			yield {
+				name: 'No body set with headers',
+				params: [{
+					headers: {
+						'Key': 'Value',
+						'Content-Type': 'Override'
+					}
+				}],
+				expectedResultObject: {
+					body: JSON.stringify({}),
+					statusCode: 200,
+					headers: {
+						'Content-Type': 'Override',
+						'Access-Control-Allow-Origin': '*',
+						'Key': 'Value'
+					}
+				}
+			};
+		};
+		for (let test of tests) {
+			it(test.name, () => {
+				let response = new Response(...test.params);
+				expect(response).to.eql(test.expectedResultObject);
+			});
+		}
 	});
 });
