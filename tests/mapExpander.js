@@ -1,20 +1,8 @@
-const esprima = require('esprima');
-const mocha = require('mocha');
-const chai = require('chai');
-const fs = require('fs');
-const path = require('path');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+require('error-object-polyfill');
+const { describe, it } = require('mocha');
+const { expect } = require('chai');
 
 const MapExpander = require('../src/mapExpander');
-
-const assert = chai.assert;
-const expect = chai.expect;
-chai.use(sinonChai);
-
-let sandbox;
-beforeEach(() => { sandbox = sinon.sandbox.create(); });
-afterEach(() => sandbox.restore());
 
 describe('mapExpander.js', () => {
 	describe('expandMap', () => {
@@ -27,7 +15,7 @@ describe('mapExpander.js', () => {
 				expectedOutputMap: {
 					'': {
 						_tokens: [],
-						_value: testValue 
+						_value: testValue
 					}
 				}
 			},
@@ -36,25 +24,25 @@ describe('mapExpander.js', () => {
 				inputMap: {},
 				path: '/items',
 				expectedOutputMap: {
-					'items': {
+					items: {
 						_tokens: [],
-						_value: testValue 
+						_value: testValue
 					}
 				}
 			},
 			{
 				name: 'merge maps',
 				inputMap: {
-					'items': {
+					items: {
 						_value: 'items-value'
 					}
 				},
 				path: '/resource',
 				expectedOutputMap: {
-					'items': {
-						_value: 'items-value' 
+					items: {
+						_value: 'items-value'
 					},
-					'resource': {
+					resource: {
 						_tokens: [],
 						_value: testValue
 					}
@@ -63,7 +51,7 @@ describe('mapExpander.js', () => {
 			{
 				name: 'throw exception on duplicate item',
 				inputMap: {
-					'items': {
+					items: {
 						_value: 'items-value'
 					}
 				},
@@ -76,9 +64,9 @@ describe('mapExpander.js', () => {
 				inputMap: {},
 				path: '/resource/{resource}/subresource/{subresource}',
 				expectedOutputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subresource': {
+							subresource: {
 								'*': {
 									_tokens: ['resource', 'subresource'],
 									_value: testValue
@@ -91,9 +79,9 @@ describe('mapExpander.js', () => {
 			{
 				name: 'multiple resources with the same top level paths',
 				inputMap: {
-					'resource': {
+					resource: {
 						_value: 'resource-value',
-						'subpath1': {
+						subpath1: {
 							_tokens: [],
 							_value: 'subvalue1'
 						}
@@ -102,13 +90,13 @@ describe('mapExpander.js', () => {
 				},
 				path: '/resource/subpath2',
 				expectedOutputMap: {
-					'resource': {
+					resource: {
 						_value: 'resource-value',
-						'subpath1': {
+						subpath1: {
 							_tokens: [],
 							_value: 'subvalue1'
 						},
-						'subpath2': {
+						subpath2: {
 							_tokens: [],
 							_value: testValue
 						}
@@ -118,9 +106,9 @@ describe('mapExpander.js', () => {
 			{
 				name: 'multiple wildcard resources with the different low level paths',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subpath1': {
+							subpath1: {
 								_value: 'subvalue1',
 								_tokens: ['subtoken1']
 							}
@@ -129,13 +117,13 @@ describe('mapExpander.js', () => {
 				},
 				path: '/resource/{subtoken2}/subpath2',
 				expectedOutputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subpath1': {
+							subpath1: {
 								_value: 'subvalue1',
 								_tokens: ['subtoken1']
 							},
-							'subpath2': {
+							subpath2: {
 								_value: testValue,
 								_tokens: ['subtoken2']
 							}
@@ -178,7 +166,7 @@ describe('mapExpander.js', () => {
 				name: 'first level map',
 				path: '/resource',
 				inputMap: {
-					'resource': {
+					resource: {
 						_value: expectedValue
 					}
 				},
@@ -191,7 +179,7 @@ describe('mapExpander.js', () => {
 				name: 'dynamic value',
 				path: '/resource/resourceId',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
 							_value: expectedValue,
 							_tokens: ['token1']
@@ -209,9 +197,9 @@ describe('mapExpander.js', () => {
 				name: 'multiple dynamic values',
 				path: '/resource/resourceId/subresource/subId',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subresource': {
+							subresource: {
 								'*': {
 									_tokens: ['token1', 'token2'],
 									_value: expectedValue
@@ -232,7 +220,7 @@ describe('mapExpander.js', () => {
 				name: 'match explicit before wild card',
 				path: '/resource/resourceId',
 				inputMap: {
-					'resource': {
+					resource: {
 						'resourceId': {
 							_value: expectedValue
 						},
@@ -250,7 +238,7 @@ describe('mapExpander.js', () => {
 				name: 'path not found',
 				path: '/items/itemId/subItem',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
 							_value: 'bad-value'
 						}
@@ -288,18 +276,18 @@ describe('mapExpander.js', () => {
 				name: 'multiple wildcards at the same level',
 				path: '/resource/resourceId/subresource1',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subresource1': {
+							subresource1: {
 								_tokens: ['token1'],
 								_value: expectedValue
 							},
-							'subresource2': {
+							subresource2: {
 								_tokens: ['token2'],
 								_value: 'bad-value'
 							}
 						}
-					},
+					}
 				},
 				expectedValue: {
 					value: expectedValue,
@@ -312,18 +300,18 @@ describe('mapExpander.js', () => {
 				name: 'multiple wildcards at the same level second one check',
 				path: '/resource/resourceId/subresource2',
 				inputMap: {
-					'resource': {
+					resource: {
 						'*': {
-							'subresource1': {
+							subresource1: {
 								_tokens: ['token1'],
 								_value: 'bad-value'
 							},
-							'subresource2': {
+							subresource2: {
 								_tokens: ['token2'],
 								_value: expectedValue
 							}
 						}
-					},
+					}
 				},
 				expectedValue: {
 					value: expectedValue,

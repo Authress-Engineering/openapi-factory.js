@@ -8,7 +8,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "eslint --ext .js src index.js",
+    "lint": "eslint --ext .js src index.js tests",
     "test": "mocha tests/**/*.js -R spec"
   },
   "dependencies": {},
