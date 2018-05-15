@@ -8,8 +8,10 @@ class ApiFactory {
 	constructor(overrideLogger) {
 		apiFactory = this;
 		this.Authorizer = null;
-		this.onEvent = () => {};
-		this.onSchedule = () => {};
+		this.handlers = {
+			onEvent() {},
+			onSchedule() {}
+		};
 		this.Routes = {};
 		this.ProxyRoutes = {};
 		this.logger = overrideLogger || console.log;
@@ -26,12 +28,12 @@ class ApiFactory {
 
 	onEvent(onEventFunc) {
 		if (!isFunction(onEventFunc)) { throw new Error('onEvent has not been defined as a function.'); }
-		this.onEvent = onEventFunc;
+		this.handlers.onEvent = onEventFunc;
 	}
 
 	onSchedule(onScheduleFunc) {
 		if (!isFunction(onScheduleFunc)) { throw new Error('onSchedule has not been defined as a function.'); }
-		this.onSchedule = onScheduleFunc;
+		this.handlers.onSchedule = onScheduleFunc;
 	}
 
 	head(route, p0, p1) { this.method('HEAD', route, p0, p1); }
@@ -156,7 +158,7 @@ class ApiFactory {
 		// this is a scheduled trigger
 		if (event.source === 'aws.events') {
 			try {
-				return await apiFactory.onSchedule(event, context);
+				return await apiFactory.handlers.onSchedule(event, context);
 			} catch (exception) {
 				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception }, null, 2));
 				throw exception;
@@ -166,7 +168,7 @@ class ApiFactory {
 		// This is an event triggered lambda
 		if (event.Records || event.messages) {
 			try {
-				return await apiFactory.onEvent(event, context);
+				return await apiFactory.handlers.onEvent(event, context);
 			} catch (exception) {
 				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
 				throw exception;
