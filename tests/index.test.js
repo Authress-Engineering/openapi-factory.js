@@ -122,7 +122,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
@@ -141,7 +142,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
@@ -158,7 +160,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
@@ -172,7 +175,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
@@ -191,7 +195,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
@@ -206,7 +211,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
@@ -223,7 +229,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
@@ -241,7 +248,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 401, 'Error should be a 401 on a throw that matches response object');
@@ -258,7 +266,8 @@ describe('index.js', () => {
 
 			let output = await api.handler({
 				httpMethod: 'GET',
-				resource: '/test'
+				resource: '/test',
+				path: '/test'
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
@@ -278,6 +287,7 @@ describe('index.js', () => {
 				resource: '/test',
 				stageVariables: null,
 				pathParameters: null,
+				path: '/test',
 				queryStringParameters: null
 			});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
@@ -302,6 +312,7 @@ describe('index.js', () => {
 				resource: '/test',
 				stageVariables: expcetedStageVariables,
 				pathParameters: expectedPathParameters,
+				path: '/test',
 				queryStringParameters: expectedQueryStringParameters
 			}, {});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');

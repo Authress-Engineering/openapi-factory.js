@@ -72,11 +72,11 @@ class ApiFactory {
 
 	/* This is the entry point from AWS Lambda. */
 	async handler(event, context) {
-		event.query = event.queryStringParameters || {};
-		event.path = event.pathParameters || {};
-		event.stage = event.stageVariables || {};
-
 		if (event.path && !event.type) {
+			event.queryStringParameters = event.queryStringParameters || {};
+			event.stageVariables = event.stageVariables || {};
+			event.pathParameters = event.pathParameters || {};
+
 			let mainEventHandler = apiFactory.Routes[event.httpMethod];
 			let anyEventHandler = apiFactory.Routes.ANY;
 			let definedRoute = null;
