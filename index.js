@@ -73,8 +73,9 @@ class ApiFactory {
 	/* This is the entry point from AWS Lambda. */
 	async handler(event, context) {
 		if (event.path && !event.type) {
-			event.query = event.queryStringParameters || {};
-			event.stage = event.stageVariables || {};
+			event.queryStringParameters = event.queryStringParameters || {};
+			event.stageVariables = event.stageVariables || {};
+			event.pathParameters = event.pathParameters || {};
 
 			let mainEventHandler = apiFactory.Routes[event.httpMethod];
 			let anyEventHandler = apiFactory.Routes.ANY;
@@ -96,7 +97,6 @@ class ApiFactory {
 					event.pathParameters = map.tokens;
 				}
 			}
-			event.path = event.pathParameters || {};
 
 			// either it is proxied and not defined or not defined, either way go to the proxy method.
 			if (!definedRoute) {

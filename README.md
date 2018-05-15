@@ -32,9 +32,9 @@ The default headers returned unless overriden are
 
 	// converts dynamic variables paths
 	api.get('/example/{id}/subpath', request => {
-		let idFromPath = request.path.id;
-		let stageVariable = request.stage.VARIABLE_NAME;
-		let query = request.query.QUERY_NAME;
+		let idFromPath = request.pathParameters.id;
+		let stageVariable = request.stageVariables.VARIABLE_NAME;
+		let query = request.queryStringParameters.QUERY_NAME;
 		let headers = request.headers.HEADER_NAME;
 	});
 
