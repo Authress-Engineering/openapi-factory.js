@@ -72,7 +72,7 @@ class ApiFactory {
 
 	/* This is the entry point from AWS Lambda. */
 	async handler(event, context) {
-		if (event.pathParameters && !event.type) {
+		if (event.path && !event.type) {
 			event.query = event.queryStringParameters || {};
 			event.stage = event.stageVariables || {};
 
