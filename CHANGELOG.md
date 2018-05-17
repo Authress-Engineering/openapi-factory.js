@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 4.2 ##
+* Include middleware for requests and responses
+
 ## 4.1 ##
 * Optimize code to use es6 classes
 

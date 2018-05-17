@@ -5,9 +5,11 @@ let isFunction = obj => { return !!(obj && obj.constructor && obj.call && obj.ap
 
 let apiFactory = null;
 class ApiFactory {
-	constructor(overrideLogger) {
+	constructor(options, overrideLogger) {
 		apiFactory = this;
 		this.Authorizer = null;
+		this.requestMiddleware = options && options.requestMiddleware || (r => r);
+		this.responseMiddleware = options && options.responseMiddleware || ((_, r) => r);
 		this.handlers = {
 			onEvent() {},
 			onSchedule() {}
@@ -125,7 +127,9 @@ class ApiFactory {
 				event.body = JSON.parse(event.body);
 			} catch (e) { /* */ }
 			try {
-				let result = await lambda(event, context);
+				let request = await apiFactory.requestMiddleware(event);
+				let response = await lambda(request, context);
+				let result = await apiFactory.responseMiddleware(event, response);
 				if (!result) { return new Resp(null, 204); }
 				if (!(result instanceof Resp)) { return new Resp(result, result && result.statusCode ? null : 200); }
 				return result;

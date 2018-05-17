@@ -11,8 +11,16 @@ The default headers returned unless overriden are
 * For a binary Object: `{ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }`
 
 ```javascript
-	var ApiFactory = require('openapi-factory');
-	var api = new ApiFactory();
+	const ApiFactory = require('openapi-factory');
+	let options = {
+		requestMiddleware(request) {
+
+		},
+		responseMiddleware(response) {
+
+		}
+	};
+	let api = new ApiFactory(options);
 
 	api.get('/example', async request => {
 		// which auto wraps => body: { value: 'test' }, statusCode => 200, headers => application/json
