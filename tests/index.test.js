@@ -16,9 +16,80 @@ beforeEach(() => { sandbox = sinon.sandbox.create(); });
 afterEach(() => sandbox.restore());
 
 describe('index.js', () => {
+	describe('middleware', () => {
+		it('requestMiddleware', async () => {
+			let value = false;
+			let options = {
+				requestMiddleware(request) {
+					value = true;
+					return request;
+				}
+			};
+			let api = new Api(options);
+			api.get('/test', () => {
+				return { statusCode: 200 };
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				path: '/test'
+			});
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+			assert.isTrue(value);
+		});
+
+		it('responseMiddleware', async () => {
+			let value = false;
+			let options = {
+				responseMiddleware(request, response) {
+					value = true;
+					return response;
+				}
+			};
+			let api = new Api(options);
+			api.get('/test', () => {
+				return { statusCode: 200 };
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				path: '/test'
+			});
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+			assert.isTrue(value);
+		});
+
+		it('bothMiddleware', async () => {
+			let value = 0;
+			let options = {
+				requestMiddleware(request) {
+					value++;
+					return request;
+				},
+				responseMiddleware(request, response) {
+					value++;
+					return response;
+				}
+			};
+			let api = new Api(options);
+			api.get('/test', () => {
+				return { statusCode: 200 };
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				path: '/test'
+			});
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+			assert.strictEqual(value, 2);
+		});
+	});
 	describe('methods', () => {
 		it('Check expected API Methods', () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			assert.isFunction(api.head, 'HEAD has not been defined.');
 			assert.isFunction(api.get, 'GET has not been defined.');
 			assert.isFunction(api.put, 'PUT has not been defined.');
@@ -30,12 +101,12 @@ describe('index.js', () => {
 	});
 	describe('authorizer', () => {
 		it('check call to default authorizerFunc', () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			assert(api.Authorizer === null);
 		});
 		it('check call to false authorizerFunc', () => {
 			try {
-				let api = new Api(() => {});
+				let api = new Api(null, () => {});
 				api.SetAuthorizer(() => false);
 				let result = api.Authorizer();
 				//result should be false;
@@ -46,7 +117,7 @@ describe('index.js', () => {
 			}
 		});
 		it('check call to false authorizerFunc', async () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.SetAuthorizer(() => {
 				return Promise.reject('Unauthorized');
 			});
@@ -58,21 +129,21 @@ describe('index.js', () => {
 			}
 		});
 		it('check call to success authorizerFunc', async () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.SetAuthorizer(() => {
 				return Promise.resolve();
 			});
 			await api.Authorizer();
 		});
 		it('check call to success authorizer', async () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.SetAuthorizer(() => {
 				return Promise.resolve();
 			});
 			await api.Authorizer();
 		});
 		it('check call to failure authorizer', async () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.SetAuthorizer(() => {
 				return Promise.reject('Fail this test');
 			});
@@ -85,7 +156,7 @@ describe('index.js', () => {
 			}
 		});
 		it('check call to failure authorizer handler', async () => {
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			try {
 				await api.handler({
 					type: 'REQUEST',
@@ -98,7 +169,7 @@ describe('index.js', () => {
 		});
 		it('check call to failure when no authorizer defined', async () => {
 			try {
-				let api = new Api(() => {});
+				let api = new Api(null, () => {});
 				await api.handler({
 					type: 'REQUEST',
 					methodArn: 'authorizationHandlerTest'
@@ -115,7 +186,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('expandMap').returns({});
 			mapExpanderMock.expects('getMapValue').returns(null);
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.any('/test', () => {
 				return new Response(expectedResult);
 			});
@@ -135,7 +206,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('getMapValue').returns(null);
 
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				return new Response(expectedResult);
 			});
@@ -153,7 +224,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('expandMap').returns({});
 			mapExpanderMock.expects('getMapValue').returns(null);
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				return Promise.resolve(new Response(expectedResult));
 			});
@@ -168,7 +239,7 @@ describe('index.js', () => {
 		});
 		it('check promise result to GET handler with object', async () => {
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
@@ -188,7 +259,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('getMapValue').returns(null);
 
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				return Promise.reject(expectedResult);
 			});
@@ -204,7 +275,7 @@ describe('index.js', () => {
 		});
 		it('check promise rejection to GET handler with object', async () => {
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				throw { body: expectedResult, statusCode: 500 };
 			});
@@ -222,7 +293,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('expandMap').returns({});
 			mapExpanderMock.expects('getMapValue').returns(null);
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				throw expectedResult;
 			});
@@ -241,7 +312,7 @@ describe('index.js', () => {
 			mapExpanderMock.expects('getMapValue').returns(null);
 
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', () => {
 				throw { body: expectedResult, statusCode: 401 };
 			});
@@ -256,7 +327,7 @@ describe('index.js', () => {
 		});
 		it('validate default parameters', async () => {
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', request => {
 				assert.isNotNull(request.pathParameters);
 				assert.isNotNull(request.stageletiables);
@@ -274,7 +345,7 @@ describe('index.js', () => {
 		});
 		it('validate default parameters when api gateways are null', async () => {
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', request => {
 				assert.isNotNull(request.path);
 				assert.isNotNull(request.stage);
@@ -299,7 +370,7 @@ describe('index.js', () => {
 			let expcetedStageVariables = { h: 3 };
 
 			let expectedResult = { value: 5 };
-			let api = new Api(() => {});
+			let api = new Api(null, () => {});
 			api.get('/test', request => {
 				assert.equal(request.pathParameters, expectedPathParameters);
 				assert.equal(request.stageVariables, expcetedStageVariables);
