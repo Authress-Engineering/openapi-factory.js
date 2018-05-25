@@ -16,7 +16,10 @@ The default headers returned unless overriden are
 		requestMiddleware(request) {
 
 		},
-		responseMiddleware(response) {
+		responseMiddleware(request, response) {
+
+		},
+		errorMiddleware(request, error) {
 
 		}
 	};
