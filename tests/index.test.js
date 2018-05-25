@@ -47,7 +47,7 @@ describe('index.js', () => {
 					return response;
 				}
 			};
-			let api = new Api(options);
+			let api = new Api(options, () => {});
 			api.get('/test', () => {
 				return { statusCode: 200 };
 			});
@@ -58,6 +58,52 @@ describe('index.js', () => {
 				path: '/test'
 			});
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
+			assert.isTrue(value);
+		});
+
+		it('errorMiddleware', async () => {
+			let value = false;
+			let testError = { title: 'This is an error' };
+			let options = {
+				errorMiddleware(request, error) {
+					value = true;
+					return error;
+				}
+			};
+			let api = new Api(options, () => {});
+			api.get('/test', () => {
+				throw testError;
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				path: '/test'
+			});
+			assert.strictEqual(output.statusCode, 500, 'Status code should be 500');
+			assert.isTrue(value);
+		});
+
+		it('errorMiddleware throws itself', async () => {
+			let value = false;
+			let testError = { title: 'This is an error' };
+			let options = {
+				errorMiddleware(request, error) {
+					value = true;
+					throw error;
+				}
+			};
+			let api = new Api(options, () => {});
+			api.get('/test', () => {
+				throw testError;
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/test',
+				path: '/test'
+			});
+			assert.strictEqual(output.statusCode, 500, 'Status code should be 500');
 			assert.isTrue(value);
 		});
 
@@ -73,7 +119,7 @@ describe('index.js', () => {
 					return response;
 				}
 			};
-			let api = new Api(options);
+			let api = new Api(options, () => {});
 			api.get('/test', () => {
 				return { statusCode: 200 };
 			});
