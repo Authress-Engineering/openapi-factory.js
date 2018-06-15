@@ -376,7 +376,7 @@ describe('index.js', () => {
 			let api = new Api(null, () => {});
 			api.get('/test', request => {
 				assert.isNotNull(request.pathParameters);
-				assert.isNotNull(request.stageletiables);
+				assert.isNotNull(request.stageVariables);
 				assert.isNotNull(request.queryStringParameters);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});

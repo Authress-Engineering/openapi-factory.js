@@ -100,6 +100,8 @@ class ApiFactory {
 				if (map) {
 					definedRoute = map.value;
 					event.pathParameters = map.tokens;
+					event.path = event.pathParameters.proxy;
+					if (event.path[0] !== '/') { event.path = `/${event.path}`; }
 				}
 			}
 
