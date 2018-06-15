@@ -99,6 +99,8 @@ class ApiFactory {
 				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.pathParameters.proxy);
 				if (map) {
 					definedRoute = map.value;
+					event.path = event.pathParameters.proxy;
+					if (event.path[0] !== '/') { event.path = `/${event.path}`; }
 					event.pathParameters = map.tokens;
 				}
 			}
