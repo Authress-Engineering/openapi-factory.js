@@ -158,7 +158,7 @@ class ApiFactory {
 				apiFactory.logger(JSON.stringify({ title: 'No authorizer function defined' }));
 				throw new Error('Authorizer Undefined');
 			}
-			if (event.path && event.pathParameters && event.pathParameters.proxy) {
+			if (event.pathParameters && event.pathParameters.proxy) {
 				let newPath = event.pathParameters.proxy;
 				if (newPath[0] !== '/') { newPath = `/${newPath}`; }
 				event.path = newPath;
