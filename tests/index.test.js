@@ -463,5 +463,23 @@ describe('index.js', () => {
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 		});
+		it('check for authorizer proxy path change', async () => {
+			let api = new Api(null, () => {});
+			api.setAuthorizer(request => {
+				return request.path === '/test';
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/{proxy+}',
+				pathParameters: {
+					proxy: 'test'
+				},
+				path: '/test-stage/test',
+				type: 'REQUEST',
+				methodArn: 'methodArn'
+			});
+			assert.deepEqual(output, true, 'Output data does not match expected.');
+		});
 	});
 });
