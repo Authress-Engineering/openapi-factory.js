@@ -376,7 +376,7 @@ describe('index.js', () => {
 			let api = new Api(null, () => {});
 			api.get('/test', request => {
 				assert.isNotNull(request.pathParameters);
-				assert.isNotNull(request.stageletiables);
+				assert.isNotNull(request.stageVariables);
 				assert.isNotNull(request.queryStringParameters);
 				return Promise.resolve({ body: expectedResult, statusCode: 201 });
 			});
@@ -434,6 +434,34 @@ describe('index.js', () => {
 			}, {});
 			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
 			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
+		});
+		it('check for well proxy path change', async () => {
+			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			let expectedResult = { value: 5 };
+			mapExpanderMock.expects('expandMap').returns({});
+			mapExpanderMock.expects('getMapValue').returns({
+				value: {
+					Handler() {
+						return new Response(expectedResult);
+					}
+				}
+			});
+
+			let api = new Api(null, () => {});
+			api.get('/test', () => {
+				return new Response(expectedResult);
+			});
+
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/{proxy+}',
+				pathParameters: {
+					proxy: 'test'
+				},
+				path: '/test-stage/test'
+			});
+			assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 		});
 	});
 });
