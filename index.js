@@ -183,17 +183,13 @@ class ApiFactory {
 			}
 		}
 
-		// This is an event triggered lambda
-		if (event.Records || event.messages) {
-			try {
-				return await apiFactory.handlers.onEvent(event, context);
-			} catch (exception) {
-				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
-				throw exception;
-			}
+		// Otherwise execute the onEvent handler
+		try {
+			return await apiFactory.handlers.onEvent(event, context);
+		} catch (exception) {
+			apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
+			throw exception;
 		}
-
-		throw new Error('No handler matches handler JSON.');
 	}
 }
 
