@@ -10,7 +10,7 @@ class ApiFactory {
 		this.Authorizer = null;
 		this.requestMiddleware = options && options.requestMiddleware || (r => r);
 		this.responseMiddleware = options && options.responseMiddleware || ((_, r) => r);
-		this.errorMiddleware = options && options.errorMiddleware || ((_, r) => r);
+		this.errorMiddleware = options && options.errorMiddleware || ((_, e) => e);
 		this.handlers = {
 			onEvent() {},
 			onSchedule() {}
@@ -138,13 +138,13 @@ class ApiFactory {
 				return result;
 			} catch (e) {
 				try {
-					let response = await apiFactory.errorMiddleware(event, e);
-					if (response instanceof Resp) { return response; }
-					if (e instanceof Error) {
-						apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e, response: response }, null, 2));
+					let error = await apiFactory.errorMiddleware(event, e);
+					if (error instanceof Resp) { return error; }
+					if (error instanceof Error) {
+						apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e }, null, 2));
 						return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 					}
-					return new Resp(response, response && response.statusCode ? null : 500);
+					return new Resp(error, error && error.statusCode ? null : 500);
 				} catch (middleE) {
 					apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE }, null, 2));
 					return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
