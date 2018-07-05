@@ -193,4 +193,6 @@ class ApiFactory {
 	}
 }
 
+ApiFactory.Response = Resp;
+
 module.exports = ApiFactory;
