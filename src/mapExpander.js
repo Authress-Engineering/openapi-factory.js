@@ -44,7 +44,7 @@ class MapExpander {
 			} else if (acc[token]) {
 				return acc[token];
 			} else if (acc['*']) {
-				tokenList.push(token);
+				tokenList.push(token === '' ? null : token);
 				return acc['*'];
 			}
 			return null;

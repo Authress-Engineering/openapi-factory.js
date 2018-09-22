@@ -217,6 +217,29 @@ describe('mapExpander.js', () => {
 				}
 			},
 			{
+				name: 'multiple dynamic values as empty value',
+				path: '/resource//subresource/subId',
+				inputMap: {
+					resource: {
+						'*': {
+							subresource: {
+								'*': {
+									_tokens: ['token1', 'token2'],
+									_value: expectedValue
+								}
+							}
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: null,
+						token2: 'subId'
+					}
+				}
+			},
+			{
 				name: 'match explicit before wild card',
 				path: '/resource/resourceId',
 				inputMap: {
