@@ -4,6 +4,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 ## 4.2 ##
 * Include middleware for requests and responses
 * Always fallback to event handling when neither API or schedule is triggered.
+* When a path token is not specified the value of that token is `null`.
 
 ## 4.1 ##
 * Optimize code to use es6 classes
