@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 4.3 ##
+* Return `null` bodies when body is not specified rather than defaulting `{}`
+
 ## 4.2 ##
 * Include middleware for requests and responses
 * Always fallback to event handling when neither API or schedule is triggered.
