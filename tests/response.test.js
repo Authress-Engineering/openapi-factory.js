@@ -13,10 +13,8 @@ describe('response.js', () => {
 				name: 'body is json string when null',
 				params: [],
 				expectedResultObject: {
-					body: JSON.stringify({}),
 					statusCode: 200,
 					headers: {
-						'Content-Type': 'application/links+json',
 						'Access-Control-Allow-Origin': '*'
 					}
 				}
@@ -67,10 +65,8 @@ describe('response.js', () => {
 					statusCode: 400
 				}],
 				expectedResultObject: {
-					body: JSON.stringify({}),
 					statusCode: 400,
 					headers: {
-						'Content-Type': 'application/links+json',
 						'Access-Control-Allow-Origin': '*'
 					}
 				}
@@ -85,7 +81,6 @@ describe('response.js', () => {
 					}
 				}],
 				expectedResultObject: {
-					body: JSON.stringify({}),
 					statusCode: 200,
 					headers: {
 						'Content-Type': 'Override',
