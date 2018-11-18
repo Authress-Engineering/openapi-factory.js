@@ -443,7 +443,8 @@ describe('index.js', () => {
 				value: {
 					Handler() {
 						return new Response(expectedResult);
-					}
+					},
+					Options: {}
 				}
 			});
 

@@ -125,10 +125,12 @@ class ApiFactory {
 			}
 
 			let lambda = definedRoute.Handler;
-			//Convert a string body into a javascript object, if it is valid json
-			try {
-				event.body = JSON.parse(event.body);
-			} catch (e) { /* */ }
+			if (!definedRoute.Options.rawBody) {
+				// Convert a string body into a javascript object, if it is valid json and raw body is not set.
+				try {
+					event.body = JSON.parse(event.body);
+				} catch (e) { /* */ }
+			}
 			try {
 				let request = await apiFactory.requestMiddleware(event);
 				let response = await lambda(request, context);

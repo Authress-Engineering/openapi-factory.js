@@ -65,27 +65,33 @@ The default headers returned unless overriden are
 		console.log(request.path.itemId);
 		return new ApiFactory.Response({ value: 'testWithStatus' }, 200, { 'Content-Type': 'application/json'});
 	});
+
+	// paths have an optional options object which has property "rawBody" to return the raw body only.
+	api.get('/items/{itemid}', { rawbody: true }, async request => {
+		console.log('This is he raw body of the request: ', request.body);
+		return { statusCode: 200 };
+	});
 	
 	// Example: AWS Api Gateway magic string handling for CORS and 404 fallbacks.
 	api.options('/{proxy+}', () => {
-	  	return {
+	  return {
 			statusCode: 200,
 			headers: {
 			    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key',
 			    'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
 			    'Access-Control-Allow-Origin': '*'
 			}
-	  	};
+		}
 	});
 
 	api.any('/{proxy+}', () => {
-		 return {
+		return {
 			statusCode: 404,
 			headers: {
 				'Content-Type': 'application/json',
 				'Access-Control-Allow-Origin': '*'
 			}
-		 };
+		};
 	});
 
 ```

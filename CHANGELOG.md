@@ -3,6 +3,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 
 ## 4.3 ##
 * Return `null` bodies when body is not specified rather than defaulting `{}`
+* Provide the `rawBody` options parameter to keep the original body with the request instead of converting to JSON.
 
 ## 4.2 ##
 * Include middleware for requests and responses
