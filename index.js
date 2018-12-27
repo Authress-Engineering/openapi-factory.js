@@ -88,18 +88,19 @@ class ApiFactory {
 
 			let proxyPath = '/{proxy+}';
 			// default to defined path when proxy is not specified.
-			if (!event.resource.includes(proxyPath)) {
+			if (event.resource.lastIndexOf(proxyPath) === -1) {
 				if (mainEventHandler && mainEventHandler[event.resource]) {
 					definedRoute = mainEventHandler[event.resource];
 				} else if (anyEventHandler && anyEventHandler[event.resource]) {
 					definedRoute = anyEventHandler[event.resource];
 				}
 			} else {
+				// modify path to strip out potential stage in path 
+				event.path = event.resource.replace(proxyPath,'/'+ event.pathParameters.proxy)
 				// if it is a proxy path then then look up the proxied value.
 				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.path);
 				if (map) {
 					definedRoute = map.value;
-					event.path = event.pathParameters.proxy;
 					if (event.path[0] !== '/') { event.path = `/${event.path}`; }
 					event.pathParameters = map.tokens;
 				}
