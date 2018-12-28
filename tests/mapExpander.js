@@ -1,6 +1,6 @@
 require('error-object-polyfill');
-const { describe, it } = require('mocha');
-const { expect } = require('chai');
+const {describe,it} = require('mocha')
+const {expect} = require('chai')
 
 const MapExpander = require('../src/mapExpander');
 
@@ -342,6 +342,25 @@ describe('mapExpander.js', () => {
 						token2: 'resourceId'
 					}
 				}
+			},
+			{
+				name: 'path with stage should return null',
+				path: 'test/resource/resourceId/subresource1',
+				inputMap : {
+					resource :{
+						'*' : {
+							subresource1: {
+								_tokens: ['token1'],
+								_value: 'bad-value'
+							},
+							subresource2: {
+								_tokens: ['token2'],
+								_value: expectedValue
+							}
+						}
+					}
+				},
+				expectedValue : null
 			}
 		];
 		testCases.map(test => {
