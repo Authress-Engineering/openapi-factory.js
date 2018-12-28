@@ -96,7 +96,7 @@ class ApiFactory {
 				}
 			} else {
 				// modify path to strip out potential stage in path 
-				event.path = event.resource.replace(proxyPath,'/'+ event.pathParameters.proxy)
+				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
 				// if it is a proxy path then then look up the proxied value.
 				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.path);
 				if (map) {
@@ -159,7 +159,7 @@ class ApiFactory {
 				throw new Error('Authorizer Undefined');
 			}
 			if (event.pathParameters && event.pathParameters.proxy) {
-				event.path = event.resource.replace('/{proxy+}', `/${event.pathParameters.proxy}`);
+				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
 			}
 			try {
 				let policy = await apiFactory.Authorizer(event);
