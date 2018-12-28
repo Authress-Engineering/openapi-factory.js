@@ -481,5 +481,35 @@ describe('index.js', () => {
 			});
 			assert.deepEqual(output, true, 'Output data does not match expected.');
 		});
+		it('check proxy path with prefix resolves correctly', async () => {
+			let api = new Api(null, () => {});
+			api.get('/v1/resource',event => {
+				return true; 
+			})
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/v1/{proxy+}',
+				pathParameters: {
+					proxy: 'resource'
+				},
+				path: '/test-stage/v1/resource'
+			});
+			assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
+		});
+		it('check proxy path without prefix resolves correctly', async () => {
+			let api = new Api(null, () => {});
+			api.get('/resource',event => {
+				return true; 
+			})
+			let output = await api.handler({
+				httpMethod: 'GET',
+				resource: '/{proxy+}',
+				pathParameters: {
+					proxy: 'resource'
+				},
+				path: '/test-stage/v1/resource'
+			});
+			assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
+		});
 	});
 });

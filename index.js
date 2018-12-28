@@ -88,19 +88,19 @@ class ApiFactory {
 
 			let proxyPath = '/{proxy+}';
 			// default to defined path when proxy is not specified.
-			if (event.resource !== proxyPath) {
+			if (event.resource.lastIndexOf(proxyPath) === -1) {
 				if (mainEventHandler && mainEventHandler[event.resource]) {
 					definedRoute = mainEventHandler[event.resource];
 				} else if (anyEventHandler && anyEventHandler[event.resource]) {
 					definedRoute = anyEventHandler[event.resource];
 				}
 			} else {
+				// modify path to strip out potential stage in path 
+				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
 				// if it is a proxy path then then look up the proxied value.
-				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.pathParameters.proxy);
+				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.path);
 				if (map) {
-					definedRoute = map.value;
-					event.path = event.pathParameters.proxy;
-					if (event.path[0] !== '/') { event.path = `/${event.path}`; }
+					definedRoute = map.value;	
 					event.pathParameters = map.tokens;
 				}
 			}
@@ -159,9 +159,7 @@ class ApiFactory {
 				throw new Error('Authorizer Undefined');
 			}
 			if (event.pathParameters && event.pathParameters.proxy) {
-				let newPath = event.pathParameters.proxy;
-				if (newPath[0] !== '/') { newPath = `/${newPath}`; }
-				event.path = newPath;
+				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
 			}
 			try {
 				let policy = await apiFactory.Authorizer(event);
