@@ -1,7 +1,6 @@
 require('error-object-polyfill');
-const describe = require('mocha').describe
-const it = require('mocha').it
-const expect = require('chai').expect
+const {describe,it} = require('mocha')
+const {expect} = require('chai')
 
 const MapExpander = require('../src/mapExpander');
 

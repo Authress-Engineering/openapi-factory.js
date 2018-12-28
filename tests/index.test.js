@@ -1,6 +1,5 @@
 require('error-object-polyfill');
-const mocha = require('mocha');
-//{ describe, it, beforeEach, afterEach }
+const { describe, it, beforeEach, afterEach } = require('mocha');
 const chai = require('chai');
 const { assert } = require('chai');
 const sinon = require('sinon');
