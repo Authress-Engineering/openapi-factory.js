@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-class MapExpander {
-	expandMap(currentMap, pathString, mapValue) {
+class PathResolver {
+	storePath(currentMap, pathString, mapValue) {
 		let pathTokens = pathString.split('/');
 		if (pathTokens[0] === '') {
 			pathTokens = pathTokens.slice(1);
@@ -31,7 +31,7 @@ class MapExpander {
 		return currentMap;
 	}
 
-	getMapValue(currentMap, pathString) {
+	resolvePath(currentMap, pathString) {
 		let pathTokens = (pathString || '/').split('/');
 		if (pathTokens[0] === '') {
 			pathTokens = pathTokens.slice(1);
@@ -65,4 +65,4 @@ class MapExpander {
 	}
 }
 
-module.exports = MapExpander;
+module.exports = PathResolver;

@@ -1,11 +1,10 @@
 const Resp = require('./src/response');
-const MapExapander = require('./src/mapExpander');
-let mapExapander = new MapExapander();
+const PathResolver = require('./src/pathResolver');
 let isFunction = obj => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
 let apiFactory = null;
 class ApiFactory {
-	constructor(options, overrideLogger) {
+	constructor(options, overrideLogger = null) {
 		apiFactory = this;
 		this.Authorizer = null;
 		this.requestMiddleware = options && options.requestMiddleware || (r => r);
@@ -17,6 +16,7 @@ class ApiFactory {
 		};
 		this.Routes = {};
 		this.ProxyRoutes = {};
+		this.pathResolver = options && options.pathResolver || new PathResolver();
 		this.logger = overrideLogger || console.log;
 	}
 
@@ -72,7 +72,7 @@ class ApiFactory {
 			apiFactory.ProxyRoutes[verb] = {};
 		}
 		apiFactory.Routes[verb][path] = api;
-		apiFactory.ProxyRoutes[verb] = mapExapander.expandMap(apiFactory.ProxyRoutes[verb], path, api);
+		apiFactory.ProxyRoutes[verb] = apiFactory.pathResolver.storePath(apiFactory.ProxyRoutes[verb], path, api);
 	}
 
 	/* This is the entry point from AWS Lambda. */
@@ -95,12 +95,12 @@ class ApiFactory {
 					definedRoute = anyEventHandler[event.resource];
 				}
 			} else {
-				// modify path to strip out potential stage in path 
+				// modify path to strip out potential stage in path
 				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
 				// if it is a proxy path then then look up the proxied value.
-				let map = mapExapander.getMapValue(apiFactory.ProxyRoutes[event.httpMethod], event.path);
+				let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[event.httpMethod], event.path);
 				if (map) {
-					definedRoute = map.value;	
+					definedRoute = map.value;
 					event.pathParameters = map.tokens;
 				}
 			}

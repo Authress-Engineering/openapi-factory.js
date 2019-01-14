@@ -5,7 +5,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 
-const MapExpander = require('../src/mapExpander');
+const PathResolver = require('../src/pathResolver');
 const Api = require('../index');
 const Response = require('../src/response');
 
@@ -228,9 +228,9 @@ describe('index.js', () => {
 	});
 	describe('handler', () => {
 		it('check call to ANY handler', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
 			api.any('/test', () => {
@@ -247,9 +247,9 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 		});
 		it('check call to GET handler', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
@@ -266,9 +266,9 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
 		});
 		it('check promise result to GET handler', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
 			api.get('/test', () => {
@@ -300,9 +300,9 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 		});
 		it('check promise rejection to GET handler', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
@@ -335,9 +335,9 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
 		});
 		it('check exception in GET handler', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
 			api.get('/test', () => {
@@ -353,9 +353,9 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 500, 'Error should be a 500 on a throw');
 		});
 		it('check exception in GET handler with object', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns(null);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns(null);
 
 			let expectedResult = { value: 5 };
 			let api = new Api(null, () => {});
@@ -436,10 +436,10 @@ describe('index.js', () => {
 			assert.strictEqual(output.statusCode, 201, 'Status code should be 200');
 		});
 		it('check for well proxy path change', async () => {
-			let mapExpanderMock = sandbox.mock(MapExpander.prototype);
+			let pathResolverMock = sandbox.mock(PathResolver.prototype);
 			let expectedResult = { value: 5 };
-			mapExpanderMock.expects('expandMap').returns({});
-			mapExpanderMock.expects('getMapValue').returns({
+			pathResolverMock.expects('storePath').returns({});
+			pathResolverMock.expects('resolvePath').returns({
 				value: {
 					Handler() {
 						return new Response(expectedResult);
@@ -484,9 +484,9 @@ describe('index.js', () => {
 		});
 		it('check proxy path with prefix resolves correctly', async () => {
 			let api = new Api(null, () => {});
-			api.get('/v1/resource',event => {
-				return true; 
-			})
+			api.get('/v1/resource', () => {
+				return true;
+			});
 			let output = await api.handler({
 				httpMethod: 'GET',
 				resource: '/v1/{proxy+}',
@@ -499,9 +499,9 @@ describe('index.js', () => {
 		});
 		it('check proxy path without prefix resolves correctly', async () => {
 			let api = new Api(null, () => {});
-			api.get('/resource',event => {
-				return true; 
-			})
+			api.get('/resource', () => {
+				return true;
+			});
 			let output = await api.handler({
 				httpMethod: 'GET',
 				resource: '/{proxy+}',
