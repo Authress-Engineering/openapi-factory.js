@@ -1,11 +1,11 @@
 require('error-object-polyfill');
-const {describe,it} = require('mocha')
-const {expect} = require('chai')
+const { describe, it } = require('mocha');
+const { expect } = require('chai');
 
-const MapExpander = require('../src/mapExpander');
+const PathResolver = require('../src/pathResolver');
 
-describe('mapExpander.js', () => {
-	describe('expandMap', () => {
+describe('pathResolver.js', () => {
+	describe('storePath', () => {
 		const testValue = 'test-value';
 		let testCases = [
 			{
@@ -134,19 +134,23 @@ describe('mapExpander.js', () => {
 		];
 		testCases.map(test => {
 			it(test.name, () => {
-				let mapExpander = new MapExpander();
+				let pathResolver = new PathResolver();
 				let resultMap = null;
 				try {
-					resultMap = mapExpander.expandMap(test.inputMap, test.path, testValue);
+					resultMap = pathResolver.storePath(test.inputMap, test.path, testValue);
 					expect(resultMap).to.eql(test.expectedOutputMap);
 					expect(!!test.expectedError).to.eql(false);
 				} catch (error) {
-					expect(error.message).to.eql(test.expectedError.message);
+					if (test.expectedError) {
+						expect(error.message).to.eql(test.expectedError.message);
+					} else {
+						throw error;
+					}
 				}
 			});
 		});
 	});
-	describe('getMapValue', () => {
+	describe('resolvePath', () => {
 		const expectedValue = 'test-value';
 		let testCases = [
 			{
@@ -346,9 +350,9 @@ describe('mapExpander.js', () => {
 			{
 				name: 'path with stage should return null',
 				path: 'test/resource/resourceId/subresource1',
-				inputMap : {
-					resource :{
-						'*' : {
+				inputMap: {
+					resource: {
+						'*': {
 							subresource1: {
 								_tokens: ['token1'],
 								_value: 'bad-value'
@@ -360,13 +364,13 @@ describe('mapExpander.js', () => {
 						}
 					}
 				},
-				expectedValue : null
+				expectedValue: null
 			}
 		];
 		testCases.map(test => {
 			it(test.name, () => {
-				let mapExpander = new MapExpander();
-				let resultValue = mapExpander.getMapValue(test.inputMap, test.path);
+				let pathResolver = new PathResolver();
+				let resultValue = pathResolver.resolvePath(test.inputMap, test.path);
 				expect(resultValue).to.eql(test.expectedValue);
 			});
 		});
