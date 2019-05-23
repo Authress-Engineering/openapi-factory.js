@@ -16,8 +16,8 @@ class ApiFactory {
 		};
 		this.Routes = {};
 		this.ProxyRoutes = {};
-		this.pathResolver = options && options.pathResolver || new PathResolver();
-		this.logger = overrideLogger || console.log;
+    this.pathResolver = options && options.pathResolver || new PathResolver();
+		this.logger = overrideLogger || (message => console.log(JSON.stringify(message, null, 2)));
 	}
 
 	setAuthorizer(authorizerFunc) {
@@ -143,12 +143,12 @@ class ApiFactory {
 					let error = await apiFactory.errorMiddleware(event, e);
 					if (error instanceof Resp) { return error; }
 					if (error instanceof Error) {
-						apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e }, null, 2));
+						apiFactory.logger({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e });
 						return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 					}
 					return new Resp(error, error && error.statusCode ? null : 500);
 				} catch (middleE) {
-					apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE }, null, 2));
+					apiFactory.logger({ title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE });
 					return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 				}
 			}
@@ -157,7 +157,7 @@ class ApiFactory {
 		//If this is the authorizer lambda, then call the authorizer
 		if (event.type === 'REQUEST' && event.methodArn) {
 			if (!apiFactory.Authorizer) {
-				apiFactory.logger(JSON.stringify({ title: 'No authorizer function defined' }));
+				apiFactory.logger({ title: 'No authorizer function defined' });
 				throw new Error('Authorizer Undefined');
 			}
 			if (event.pathParameters && event.pathParameters.proxy) {
@@ -165,10 +165,10 @@ class ApiFactory {
 			}
 			try {
 				let policy = await apiFactory.Authorizer(event);
-				apiFactory.logger(JSON.stringify({ title: 'PolicyResult Success', details: policy }, null, 2));
+				apiFactory.logger({ title: 'PolicyResult Success', details: policy });
 				return policy;
 			} catch (exception) {
-				apiFactory.logger(JSON.stringify({ title: 'PolicyResult Failure', error: exception }, null, 2));
+				apiFactory.logger({ title: 'PolicyResult Failure', error: exception });
 				throw exception;
 			}
 		}
@@ -178,7 +178,7 @@ class ApiFactory {
 			try {
 				return await apiFactory.handlers.onSchedule(event, context);
 			} catch (exception) {
-				apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception }, null, 2));
+				apiFactory.logger({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
 				throw exception;
 			}
 		}
@@ -187,7 +187,7 @@ class ApiFactory {
 		try {
 			return await apiFactory.handlers.onEvent(event, context);
 		} catch (exception) {
-			apiFactory.logger(JSON.stringify({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception }, null, 2));
+			apiFactory.logger({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
 			throw exception;
 		}
 	}
