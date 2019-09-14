@@ -132,7 +132,7 @@ class ApiFactory {
 				} catch (e) { /* */ }
 			}
 			try {
-				let request = await apiFactory.requestMiddleware(event);
+				let request = await apiFactory.requestMiddleware(event, context);
 				let response = await lambda(request, context);
 				let result = await apiFactory.responseMiddleware(event, response);
 				if (!result) { return new Resp(null, 204); }
