@@ -16,7 +16,7 @@ class ApiFactory {
 		};
 		this.Routes = {};
 		this.ProxyRoutes = {};
-    this.pathResolver = options && options.pathResolver || new PathResolver();
+		this.pathResolver = options && options.pathResolver || new PathResolver();
 		this.logger = overrideLogger || (message => console.log(JSON.stringify(message, null, 2)));
 	}
 
@@ -124,6 +124,7 @@ class ApiFactory {
 				}, 500);
 			}
 
+			event.route = definedRoute.ResourcePath;
 			let lambda = definedRoute.Handler;
 			if (!definedRoute.Options.rawBody) {
 				// Convert a string body into a javascript object, if it is valid json and raw body is not set.
