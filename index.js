@@ -144,12 +144,12 @@ class ApiFactory {
 					let error = await apiFactory.errorMiddleware(event, e);
 					if (error instanceof Resp) { return error; }
 					if (error instanceof Error) {
-						apiFactory.logger({ title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e });
+						apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e });
 						return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 					}
 					return new Resp(error, error && error.statusCode ? null : 500);
 				} catch (middleE) {
-					apiFactory.logger({ title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE });
+					apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE });
 					return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
 				}
 			}
@@ -179,7 +179,7 @@ class ApiFactory {
 			try {
 				return await apiFactory.handlers.onSchedule(event, context);
 			} catch (exception) {
-				apiFactory.logger({ title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
+				apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
 				throw exception;
 			}
 		}
@@ -188,7 +188,7 @@ class ApiFactory {
 		try {
 			return await apiFactory.handlers.onEvent(event, context);
 		} catch (exception) {
-			apiFactory.logger({ title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
+			apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
 			throw exception;
 		}
 	}
