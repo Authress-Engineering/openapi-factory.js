@@ -75,56 +75,58 @@ class ApiFactory {
 		apiFactory.ProxyRoutes[verb] = apiFactory.pathResolver.storePath(apiFactory.ProxyRoutes[verb], path, api);
 	}
 
+	convertEvent(event) {
+		event.queryStringParameters = event.queryStringParameters || {};
+		event.stageVariables = event.stageVariables || {};
+		event.pathParameters = event.pathParameters || {};
+
+		let mainEventHandler = apiFactory.Routes[event.httpMethod];
+		let anyEventHandler = apiFactory.Routes.ANY;
+		let definedRoute = null;
+
+		let proxyPath = '/{proxy+}';
+		// default to defined path when proxy is not specified.
+		if (event.resource.lastIndexOf(proxyPath) === -1) {
+			if (mainEventHandler && mainEventHandler[event.resource]) {
+				definedRoute = mainEventHandler[event.resource];
+			} else if (anyEventHandler && anyEventHandler[event.resource]) {
+				definedRoute = anyEventHandler[event.resource];
+			}
+		} else {
+			// modify path to strip out potential stage in path
+			event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
+			// if it is a proxy path then then look up the proxied value.
+			let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[event.httpMethod], event.path);
+			if (map) {
+				definedRoute = map.value;
+				event.pathParameters = map.tokens;
+			}
+		}
+
+		// either it is proxied and not defined or not defined, either way go to the proxy method.
+		if (!definedRoute) {
+			if (mainEventHandler && mainEventHandler[proxyPath]) {
+				definedRoute = mainEventHandler[proxyPath];
+			} else if (anyEventHandler && anyEventHandler[proxyPath]) {
+				definedRoute = anyEventHandler[proxyPath];
+			}
+		}
+
+		event.route = definedRoute && definedRoute.ResourcePath;
+		return { event, definedRoute };
+	}
+
 	/* This is the entry point from AWS Lambda. */
-	async handler(event, context) {
-		if (event.path && !event.type) {
-			event.queryStringParameters = event.queryStringParameters || {};
-			event.stageVariables = event.stageVariables || {};
-			event.pathParameters = event.pathParameters || {};
-
-			let mainEventHandler = apiFactory.Routes[event.httpMethod];
-			let anyEventHandler = apiFactory.Routes.ANY;
-			let definedRoute = null;
-
-			let proxyPath = '/{proxy+}';
-			// default to defined path when proxy is not specified.
-			if (event.resource.lastIndexOf(proxyPath) === -1) {
-				if (mainEventHandler && mainEventHandler[event.resource]) {
-					definedRoute = mainEventHandler[event.resource];
-				} else if (anyEventHandler && anyEventHandler[event.resource]) {
-					definedRoute = anyEventHandler[event.resource];
-				}
-			} else {
-				// modify path to strip out potential stage in path
-				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
-				// if it is a proxy path then then look up the proxied value.
-				let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[event.httpMethod], event.path);
-				if (map) {
-					definedRoute = map.value;
-					event.pathParameters = map.tokens;
-				}
-			}
-
-			// either it is proxied and not defined or not defined, either way go to the proxy method.
-			if (!definedRoute) {
-				if (mainEventHandler && mainEventHandler[proxyPath]) {
-					definedRoute = mainEventHandler[proxyPath];
-				} else if (anyEventHandler && anyEventHandler[proxyPath]) {
-					definedRoute = anyEventHandler[proxyPath];
-				}
-			}
-
+	async handler(originalEvent, context) {
+		if (originalEvent.path && !originalEvent.type) {
+			let { event, definedRoute } = this.convertEvent(originalEvent);
 			if (!definedRoute) {
 				return new Resp({
 					title: 'No handler defined for method and resource.',
-					details: {
-						event: event,
-						context: context
-					}
+					details: { event, context }
 				}, 500);
 			}
 
-			event.route = definedRoute.ResourcePath;
 			let lambda = definedRoute.Handler;
 			if (!definedRoute.Options.rawBody) {
 				// Convert a string body into a javascript object, if it is valid json and raw body is not set.
@@ -156,14 +158,13 @@ class ApiFactory {
 		}
 
 		//If this is the authorizer lambda, then call the authorizer
-		if (event.type === 'REQUEST' && event.methodArn) {
+		if (originalEvent.type === 'REQUEST' && originalEvent.methodArn) {
 			if (!apiFactory.Authorizer) {
 				apiFactory.logger({ title: 'No authorizer function defined' });
 				throw new Error('Authorizer Undefined');
 			}
-			if (event.pathParameters && event.pathParameters.proxy) {
-				event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
-			}
+
+			const { event } = this.convertEvent(originalEvent);
 			try {
 				let policy = await apiFactory.Authorizer(event);
 				apiFactory.logger({ title: 'PolicyResult Success', details: policy });
@@ -175,9 +176,9 @@ class ApiFactory {
 		}
 
 		// this is a scheduled trigger
-		if (event.source === 'aws.events') {
+		if (originalEvent.source === 'aws.events') {
 			try {
-				return await apiFactory.handlers.onSchedule(event, context);
+				return await apiFactory.handlers.onSchedule(originalEvent, context);
 			} catch (exception) {
 				apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
 				throw exception;
@@ -186,7 +187,7 @@ class ApiFactory {
 
 		// Otherwise execute the onEvent handler
 		try {
-			return await apiFactory.handlers.onEvent(event, context);
+			return await apiFactory.handlers.onEvent(originalEvent, context);
 		} catch (exception) {
 			apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
 			throw exception;
