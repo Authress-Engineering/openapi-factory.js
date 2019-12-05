@@ -2,7 +2,9 @@ const Resp = require('./src/response');
 const PathResolver = require('./src/pathResolver');
 let isFunction = obj => { return !!(obj && obj.constructor && obj.call && obj.apply); };
 
+// This class is a singleton because the standard usage dereferences the `handler` method which removes the binding to `this`
 let apiFactory = null;
+
 class ApiFactory {
 	constructor(options, overrideLogger = null) {
 		apiFactory = this;
@@ -119,7 +121,7 @@ class ApiFactory {
 	/* This is the entry point from AWS Lambda. */
 	async handler(originalEvent, context) {
 		if (originalEvent.path && !originalEvent.type) {
-			let { event, definedRoute } = this.convertEvent(originalEvent);
+			let { event, definedRoute } = apiFactory.convertEvent(originalEvent);
 			if (!definedRoute) {
 				return new Resp({
 					title: 'No handler defined for method and resource.',
@@ -164,7 +166,7 @@ class ApiFactory {
 				throw new Error('Authorizer Undefined');
 			}
 
-			const { event } = this.convertEvent(originalEvent);
+			const { event } = apiFactory.convertEvent(originalEvent);
 			try {
 				let policy = await apiFactory.Authorizer(event);
 				apiFactory.logger({ title: 'PolicyResult Success', details: policy });
