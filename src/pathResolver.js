@@ -44,7 +44,7 @@ class PathResolver {
 			} else if (acc[token]) {
 				return acc[token];
 			} else if (acc['*']) {
-				tokenList.push(token === '' ? null : token);
+				tokenList.push(token === '' ? null : decodeURIComponent(token));
 				return acc['*'];
 			}
 			return null;
