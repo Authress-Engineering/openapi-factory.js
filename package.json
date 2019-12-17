@@ -18,7 +18,7 @@
     "error-object-polyfill": "^1.0.11",
     "eslint-config-cimpress-atsquad": "^1.0.28",
     "glob": "^5.0.15",
-    "mocha": "^2.4.5",
+    "mocha": "^6.2.2",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.14.0",
     "travis-build-tools": "^1.0"
