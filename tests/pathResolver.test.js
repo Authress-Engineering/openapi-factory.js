@@ -207,6 +207,41 @@ describe('pathResolver.js', () => {
 					}
 				}
 			};
+			yield {
+				name: 'dynamic value as null',
+				path: '/resource/',
+				inputMap: {
+					resource: {
+						'*': {
+							_value: expectedValue,
+							_tokens: ['token1']
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: null
+					}
+				}
+			};
+			yield {
+				name: 'prefer non-null match',
+				path: '/resource',
+				inputMap: {
+					resource: {
+						'_value': expectedValue,
+						'*': {
+							_value: 'INVALID',
+							_tokens: ['token1']
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {}
+				}
+			};
 			const rawResoucetokenValue = 'foo&bar|path:&-/some-more-encoded-stuff';
 			yield {
 				name: 'dynamic value with url encoded component',
