@@ -7,8 +7,9 @@ const PathResolver = require('../src/pathResolver');
 describe('pathResolver.js', () => {
 	describe('storePath', () => {
 		const testValue = 'test-value';
-		let testCases = [
-			{
+		const tests = {};
+		tests[Symbol.iterator] = function* () {
+			yield {
 				name: 'empty map',
 				inputMap: {},
 				path: '/',
@@ -18,8 +19,9 @@ describe('pathResolver.js', () => {
 						_value: testValue
 					}
 				}
-			},
-			{
+			};
+			
+			yield {
 				name: 'add items to map',
 				inputMap: {},
 				path: '/items',
@@ -29,8 +31,9 @@ describe('pathResolver.js', () => {
 						_value: testValue
 					}
 				}
-			},
-			{
+			};
+
+			yield {
 				name: 'merge maps',
 				inputMap: {
 					items: {
@@ -47,8 +50,9 @@ describe('pathResolver.js', () => {
 						_value: testValue
 					}
 				}
-			},
-			{
+			};
+
+			yield {
 				name: 'throw exception on duplicate item',
 				inputMap: {
 					items: {
@@ -58,8 +62,9 @@ describe('pathResolver.js', () => {
 				path: '/items',
 				expectedError: new Error('Path already exists: /items'),
 				expectedOutputMap: null
-			},
-			{
+			};
+
+			yield {
 				name: 'sub resources with wild cards',
 				inputMap: {},
 				path: '/resource/{resource}/subresource/{subresource}',
@@ -75,8 +80,9 @@ describe('pathResolver.js', () => {
 						}
 					}
 				}
-			},
-			{
+			};
+
+			yield {
 				name: 'multiple resources with the same top level paths',
 				inputMap: {
 					resource: {
@@ -102,8 +108,9 @@ describe('pathResolver.js', () => {
 						}
 					}
 				}
-			},
-			{
+			};
+
+			yield {
 				name: 'multiple wildcard resources with the different low level paths',
 				inputMap: {
 					resource: {
@@ -130,9 +137,10 @@ describe('pathResolver.js', () => {
 						}
 					}
 				}
-			}
-		];
-		testCases.map(test => {
+			};
+		};
+
+		for (let test of tests) {
 			it(test.name, () => {
 				let pathResolver = new PathResolver();
 				let resultMap = null;
@@ -148,12 +156,13 @@ describe('pathResolver.js', () => {
 					}
 				}
 			});
-		});
+		}
 	});
 	describe('resolvePath', () => {
-		const expectedValue = 'test-value';
-		let testCases = [
-			{
+		const expectedValue = 'mapObject-preset-test-value-{}';
+		const tests = {};
+		tests[Symbol.iterator] = function* () {
+			yield {
 				name: 'get route function',
 				path: '/',
 				inputMap: {
@@ -165,8 +174,9 @@ describe('pathResolver.js', () => {
 					tokens: {},
 					value: expectedValue
 				}
-			},
-			{
+			};
+			
+			yield {
 				name: 'first level map',
 				path: '/resource',
 				inputMap: {
@@ -178,8 +188,8 @@ describe('pathResolver.js', () => {
 					tokens: {},
 					value: expectedValue
 				}
-			},
-			{
+			};
+			yield {
 				name: 'dynamic value',
 				path: '/resource/resourceId',
 				inputMap: {
@@ -196,8 +206,63 @@ describe('pathResolver.js', () => {
 						token1: 'resourceId'
 					}
 				}
-			},
-			{
+			};
+			yield {
+				name: 'dynamic value as null',
+				path: '/resource/',
+				inputMap: {
+					resource: {
+						'*': {
+							_value: expectedValue,
+							_tokens: ['token1']
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: null
+					}
+				}
+			};
+			yield {
+				name: 'prefer non-null match',
+				path: '/resource',
+				inputMap: {
+					resource: {
+						'_value': expectedValue,
+						'*': {
+							_value: 'INVALID',
+							_tokens: ['token1']
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {}
+				}
+			};
+			const rawResoucetokenValue = 'foo&bar|path:&-/some-more-encoded-stuff';
+			yield {
+				name: 'dynamic value with url encoded component',
+				path: `/resource/${encodeURIComponent(rawResoucetokenValue)}`,
+				inputMap: {
+					resource: {
+						'*': {
+							_value: expectedValue,
+							_tokens: ['token1']
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: rawResoucetokenValue
+					}
+				}
+			};
+			
+			yield {
 				name: 'multiple dynamic values',
 				path: '/resource/resourceId/subresource/subId',
 				inputMap: {
@@ -219,8 +284,8 @@ describe('pathResolver.js', () => {
 						token2: 'subId'
 					}
 				}
-			},
-			{
+			};
+			yield {
 				name: 'multiple dynamic values as empty value',
 				path: '/resource//subresource/subId',
 				inputMap: {
@@ -242,8 +307,8 @@ describe('pathResolver.js', () => {
 						token2: 'subId'
 					}
 				}
-			},
-			{
+			};
+			yield {
 				name: 'match explicit before wild card',
 				path: '/resource/resourceId',
 				inputMap: {
@@ -260,8 +325,8 @@ describe('pathResolver.js', () => {
 					tokens: {},
 					value: expectedValue
 				}
-			},
-			{
+			};
+			yield {
 				name: 'path not found',
 				path: '/items/itemId/subItem',
 				inputMap: {
@@ -272,8 +337,8 @@ describe('pathResolver.js', () => {
 					}
 				},
 				expectedValue: null
-			},
-			{
+			};
+			yield {
 				name: 'proxy path is null',
 				path: null,
 				inputMap: {
@@ -285,8 +350,8 @@ describe('pathResolver.js', () => {
 					tokens: {},
 					value: expectedValue
 				}
-			},
-			{
+			};
+			yield {
 				name: 'top level check',
 				path: '/',
 				inputMap: {
@@ -298,8 +363,8 @@ describe('pathResolver.js', () => {
 					tokens: {},
 					value: expectedValue
 				}
-			},
-			{
+			};
+			yield {
 				name: 'multiple wildcards at the same level',
 				path: '/resource/resourceId/subresource1',
 				inputMap: {
@@ -322,8 +387,8 @@ describe('pathResolver.js', () => {
 						token1: 'resourceId'
 					}
 				}
-			},
-			{
+			};
+			yield {
 				name: 'multiple wildcards at the same level second one check',
 				path: '/resource/resourceId/subresource2',
 				inputMap: {
@@ -346,8 +411,8 @@ describe('pathResolver.js', () => {
 						token2: 'resourceId'
 					}
 				}
-			},
-			{
+			};
+			yield {
 				name: 'path with stage should return null',
 				path: 'test/resource/resourceId/subresource1',
 				inputMap: {
@@ -365,14 +430,14 @@ describe('pathResolver.js', () => {
 					}
 				},
 				expectedValue: null
-			}
-		];
-		testCases.map(test => {
+			};
+		};
+		for (let test of tests) {
 			it(test.name, () => {
 				let pathResolver = new PathResolver();
 				let resultValue = pathResolver.resolvePath(test.inputMap, test.path);
 				expect(resultValue).to.eql(test.expectedValue);
 			});
-		});
+		}
 	});
 });

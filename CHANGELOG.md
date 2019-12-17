@@ -5,6 +5,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 * Provide a way to override the DefaultPathResolver
 * Add `request.route` to be the dynamic path
 * Provide `context` as part of the requestMiddleware
+* Automatically url decode path parameters.
 
 ## 4.3 ##
 * Return `null` bodies when body is not specified rather than defaulting `{}`
