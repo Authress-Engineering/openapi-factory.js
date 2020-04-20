@@ -182,7 +182,9 @@ class ApiFactory {
 			try {
 				return await apiFactory.handlers.onSchedule(originalEvent, context);
 			} catch (exception) {
-				apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
+				if (exception.message !== 'ForceRetryExecution' && exception.code !== 'ForceRetryExecution') {
+					apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
+				}
 				throw exception;
 			}
 		}
@@ -191,7 +193,9 @@ class ApiFactory {
 		try {
 			return await apiFactory.handlers.onEvent(originalEvent, context);
 		} catch (exception) {
-			apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
+			if (exception.message !== 'ForceRetryExecution' && exception.code !== 'ForceRetryExecution') {
+				apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
+			}
 			throw exception;
 		}
 	}
