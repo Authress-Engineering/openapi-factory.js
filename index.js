@@ -179,25 +179,11 @@ class ApiFactory {
 
 		// this is a scheduled trigger
 		if (originalEvent.source === 'aws.events') {
-			try {
-				return await apiFactory.handlers.onSchedule(originalEvent, context);
-			} catch (exception) {
-				if (exception.message !== 'ForceRetryExecution' && exception.code !== 'ForceRetryExecution') {
-					apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime scheduled function, check the implementation.', error: exception });
-				}
-				throw exception;
-			}
+			return await apiFactory.handlers.onSchedule(originalEvent, context);
 		}
 
 		// Otherwise execute the onEvent handler
-		try {
-			return await apiFactory.handlers.onEvent(originalEvent, context);
-		} catch (exception) {
-			if (exception.message !== 'ForceRetryExecution' && exception.code !== 'ForceRetryExecution') {
-				apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime event function, check the implementation.', error: exception });
-			}
-			throw exception;
-		}
+		return await apiFactory.handlers.onEvent(originalEvent, context);
 	}
 }
 
