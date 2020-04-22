@@ -168,7 +168,7 @@ class ApiFactory {
 
 			const { event } = apiFactory.convertEvent(originalEvent);
 			try {
-				let policy = await apiFactory.Authorizer(event);
+				let policy = await apiFactory.Authorizer(event, context);
 				apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
 				return policy;
 			} catch (error) {
