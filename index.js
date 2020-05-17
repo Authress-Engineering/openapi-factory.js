@@ -94,6 +94,7 @@ class ApiFactory {
 			} else if (anyEventHandler && anyEventHandler[event.resource]) {
 				definedRoute = anyEventHandler[event.resource];
 			}
+			event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
 		} else {
 			// modify path to strip out potential stage in path
 			event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
