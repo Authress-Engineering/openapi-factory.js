@@ -6,6 +6,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 * Add `request.route` to be the dynamic path
 * Provide `context` as part of the requestMiddleware
 * Automatically url decode path parameters.
+* Allow `*` to be a valid path parameter
 
 ## 4.3 ##
 * Return `null` bodies when body is not specified rather than defaulting `{}`

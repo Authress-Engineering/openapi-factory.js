@@ -431,6 +431,30 @@ describe('pathResolver.js', () => {
 				},
 				expectedValue: null
 			};
+
+			yield {
+				name: 'path with * as resource should work as normal',
+				path: '/resource/*/subresource/*',
+				inputMap: {
+					resource: {
+						'*': {
+							subresource: {
+								'*': {
+									_tokens: ['token1', 'token2'],
+									_value: expectedValue
+								}
+							}
+						}
+					}
+				},
+				expectedValue: {
+					value: expectedValue,
+					tokens: {
+						token1: '*',
+						token2: '*'
+					}
+				}
+			};
 		};
 		for (let test of tests) {
 			it(test.name, () => {

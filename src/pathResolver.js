@@ -41,7 +41,7 @@ class PathResolver {
 		let mapIteration = pathTokens.reduce((acc, token) => {
 			if (!acc) {
 				return null;
-			} else if (acc[token]) {
+			} else if (acc[token] && token !== '*') {
 				return acc[token];
 			} else if (acc['*']) {
 				tokenList.push(token === '' ? null : decodeURIComponent(token));
