@@ -102,7 +102,8 @@ class ApiFactory {
 			let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[event.httpMethod], event.path);
 			if (map) {
 				definedRoute = map.value;
-				event.pathParameters = map.tokens;
+				delete event.pathParameters.proxy;
+				event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
 			}
 		}
 
