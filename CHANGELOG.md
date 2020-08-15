@@ -7,6 +7,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 * Provide `context` as part of the requestMiddleware
 * Automatically url decode path parameters.
 * Allow `*` to be a valid path parameter
+* Populate multiValueHeaders instead of headers to support header lists
 
 ## 4.3 ##
 * Return `null` bodies when body is not specified rather than defaulting `{}`

@@ -16,10 +16,11 @@ describe('response.js', () => {
 					statusCode: 200,
 					headers: {
 						'Access-Control-Allow-Origin': '*'
-					}
+					},
+					multiValueHeaders: {}
 				}
 			};
-			
+
 			yield {
 				name: 'body is json string',
 				params: [testObject],
@@ -29,7 +30,8 @@ describe('response.js', () => {
 					headers: {
 						'Content-Type': 'application/links+json',
 						'Access-Control-Allow-Origin': '*'
-					}
+					},
+					multiValueHeaders: {}
 				}
 			};
 
@@ -42,7 +44,8 @@ describe('response.js', () => {
 					headers: {
 						'Content-Type': 'application/octet-stream',
 						'Access-Control-Allow-Origin': '*'
-					}
+					},
+					multiValueHeaders: {}
 				}
 			};
 
@@ -55,7 +58,8 @@ describe('response.js', () => {
 					headers: {
 						'Content-Type': 'application/links+json',
 						'Access-Control-Allow-Origin': '*'
-					}
+					},
+					multiValueHeaders: {}
 				}
 			};
 
@@ -68,7 +72,8 @@ describe('response.js', () => {
 					statusCode: 400,
 					headers: {
 						'Access-Control-Allow-Origin': '*'
-					}
+					},
+					multiValueHeaders: {}
 				}
 			};
 
@@ -83,9 +88,11 @@ describe('response.js', () => {
 				expectedResultObject: {
 					statusCode: 200,
 					headers: {
-						'Content-Type': 'Override',
-						'Access-Control-Allow-Origin': '*',
-						'Key': 'Value'
+						'Access-Control-Allow-Origin': '*'
+					},
+					multiValueHeaders: {
+						'Content-Type': ['Override'],
+						'Key': ['Value']
 					}
 				}
 			};

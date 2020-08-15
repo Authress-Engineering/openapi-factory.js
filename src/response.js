@@ -3,16 +3,20 @@ class Response {
 		let pullBody = body && (body.body || body.statusCode || body.headers);
 		this.body = pullBody ? body.body : body;
 		this.statusCode = (pullBody ? body.statusCode : statusCode) || 200;
-		this.headers = (pullBody ? body.headers : headers) || {};
+		const populatedHeaders = (pullBody ? body.headers : headers) || {};
+		this.multiValueHeaders = Object.keys(populatedHeaders).reduce((agg, h) => {
+			agg[h] = Array.isArray(populatedHeaders[h]) ? populatedHeaders[h] : [populatedHeaders[h]];
+			return agg;
+		}, {});
 
 		if (!this.body) {
 			delete this.body;
-			this.headers = Object.assign({ 'Access-Control-Allow-Origin': '*' }, this.headers);
+			this.headers = { 'Access-Control-Allow-Origin': '*' };
 		} else if (this.body && this.body instanceof Buffer) {
-			this.headers = Object.assign({ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }, this.headers);
+			this.headers = { 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' };
 		} else {
 			this.body = JSON.stringify(this.body);
-			this.headers = Object.assign({ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }, this.headers);
+			this.headers = { 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' };
 		}
 	}
 }
