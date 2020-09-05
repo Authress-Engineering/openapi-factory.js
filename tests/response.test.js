@@ -15,7 +15,8 @@ describe('response.js', () => {
 				expectedResultObject: {
 					statusCode: 200,
 					headers: {
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {}
 				}
@@ -29,7 +30,8 @@ describe('response.js', () => {
 					statusCode: 200,
 					headers: {
 						'Content-Type': 'application/links+json',
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {}
 				}
@@ -43,7 +45,8 @@ describe('response.js', () => {
 					statusCode: 200,
 					headers: {
 						'Content-Type': 'application/octet-stream',
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {}
 				}
@@ -57,7 +60,8 @@ describe('response.js', () => {
 					statusCode: 201,
 					headers: {
 						'Content-Type': 'application/links+json',
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {}
 				}
@@ -71,7 +75,8 @@ describe('response.js', () => {
 				expectedResultObject: {
 					statusCode: 400,
 					headers: {
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {}
 				}
@@ -88,7 +93,8 @@ describe('response.js', () => {
 				expectedResultObject: {
 					statusCode: 200,
 					headers: {
-						'Access-Control-Allow-Origin': '*'
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Credentials': true
 					},
 					multiValueHeaders: {
 						'Content-Type': ['Override'],

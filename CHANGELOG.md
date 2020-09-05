@@ -8,6 +8,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 * Automatically url decode path parameters.
 * Allow `*` to be a valid path parameter
 * Populate multiValueHeaders instead of headers to support header lists
+* Set `Access-Control-Allow-Credentials` to be `true` by default.
 
 ## 4.3 ##
 * Return `null` bodies when body is not specified rather than defaulting `{}`

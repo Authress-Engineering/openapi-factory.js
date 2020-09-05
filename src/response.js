@@ -11,12 +11,12 @@ class Response {
 
 		if (!this.body) {
 			delete this.body;
-			this.headers = { 'Access-Control-Allow-Origin': '*' };
+			this.headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true };
 		} else if (this.body && this.body instanceof Buffer) {
-			this.headers = { 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' };
+			this.headers = { 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true };
 		} else {
 			this.body = JSON.stringify(this.body);
-			this.headers = { 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' };
+			this.headers = { 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true };
 		}
 	}
 }
