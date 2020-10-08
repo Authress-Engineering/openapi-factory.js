@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const Response = require('../src/response');
 
 describe('response.js', () => {
-	describe('constructor()', async () => {
+	describe('constructor()', () => {
 		let tests = {};
 		tests[Symbol.iterator] = function* () {
 			let testObject = { field: 'value' };
