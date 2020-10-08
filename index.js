@@ -181,10 +181,12 @@ class ApiFactory {
 
 		// this is a scheduled trigger
 		if (originalEvent.source === 'aws.events') {
+			// eslint-disable-next-line no-return-await
 			return await apiFactory.handlers.onSchedule(originalEvent, context);
 		}
 
 		// Otherwise execute the onEvent handler
+		// eslint-disable-next-line no-return-await
 		return await apiFactory.handlers.onEvent(originalEvent, context);
 	}
 }
