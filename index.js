@@ -82,24 +82,27 @@ class ApiFactory {
     event.stageVariables = event.stageVariables || {};
     event.pathParameters = event.pathParameters || {};
 
-    let mainEventHandler = apiFactory.Routes[event.httpMethod];
+    const method = event.httpMethod || event.requestContext && event.requestContext.http && event.requestContext.http.method;
+    let mainEventHandler = apiFactory.Routes[method];
     let anyEventHandler = apiFactory.Routes.ANY;
     let definedRoute = null;
 
-    let proxyPath = '/{proxy+}';
+    const proxyPath = '/{proxy+}';
+    event.path = event.requestContext && event.requestContext.http && event.requestContext.http.path || event.path;
+    const routeKey = event.routeKey || event.resource;
     // default to defined path when proxy is not specified.
-    if (event.resource.lastIndexOf(proxyPath) === -1) {
-      if (mainEventHandler && mainEventHandler[event.resource]) {
-        definedRoute = mainEventHandler[event.resource];
-      } else if (anyEventHandler && anyEventHandler[event.resource]) {
-        definedRoute = anyEventHandler[event.resource];
+    if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
+      if (mainEventHandler && mainEventHandler[routeKey]) {
+        definedRoute = mainEventHandler[routeKey];
+      } else if (anyEventHandler && anyEventHandler[routeKey]) {
+        definedRoute = anyEventHandler[routeKey];
       }
       event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
     } else {
       // modify path to strip out potential stage in path
-      event.path = `${event.resource.slice(0, -8)}${event.pathParameters.proxy}`;
+      event.path = (routeKey === '$default' ? event.path : `${routeKey.slice(0, -8)}${event.pathParameters.proxy}`);
       // if it is a proxy path then then look up the proxied value.
-      let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[event.httpMethod], event.path);
+      let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[method], event.path);
       if (map) {
         definedRoute = map.value;
         delete event.pathParameters.proxy;
@@ -162,7 +165,7 @@ class ApiFactory {
     }
 
     //If this is the authorizer lambda, then call the authorizer
-    if (originalEvent.type === 'REQUEST' && originalEvent.methodArn) {
+    if (originalEvent.type === 'REQUEST' && (originalEvent.methodArn || originalEvent.routeArn)) {
       if (!apiFactory.Authorizer) {
         apiFactory.logger({ title: 'No authorizer function defined' });
         throw new Error('Authorizer Undefined');
