@@ -20,7 +20,7 @@ describe('pathResolver.js', () => {
           }
         }
       };
-			
+
       yield {
         name: 'add items to map',
         inputMap: {},
@@ -75,6 +75,25 @@ describe('pathResolver.js', () => {
                 '*': {
                   _tokens: ['resource', 'subresource'],
                   _value: testValue
+                }
+              }
+            }
+          }
+        }
+      };
+
+      yield {
+        name: 'sub resources with greedy matcher',
+        inputMap: {},
+        path: '/resource/{resource}/subresources/{proxy+}',
+        expectedOutputMap: {
+          resource: {
+            '*': {
+              subresources: {
+                '*': {
+                  _tokens: ['resource', 'proxy'],
+                  _value: testValue,
+                  _greedy: true
                 }
               }
             }
@@ -175,7 +194,7 @@ describe('pathResolver.js', () => {
           value: expectedValue
         }
       };
-			
+
       yield {
         name: 'first level map',
         path: '/resource',
@@ -261,7 +280,7 @@ describe('pathResolver.js', () => {
           }
         }
       };
-			
+
       yield {
         name: 'multiple dynamic values',
         path: '/resource/resourceId/subresource/subId',
@@ -409,6 +428,30 @@ describe('pathResolver.js', () => {
           value: expectedValue,
           tokens: {
             token2: 'resourceId'
+          }
+        }
+      };
+      yield {
+        name: 'Greedy wildcard',
+        path: '/resource/resourceId/subResources/subresource1/lowerResource',
+        inputMap: {
+          resource: {
+            '*': {
+              subResources: {
+                '*': {
+                  _tokens: ['token1', 'proxy'],
+                  _value: expectedValue,
+                  _greedy: true
+                }
+              }
+            }
+          }
+        },
+        expectedValue: {
+          value: expectedValue,
+          tokens: {
+            token1: 'resourceId',
+            proxy: 'subresource1'
           }
         }
       };
