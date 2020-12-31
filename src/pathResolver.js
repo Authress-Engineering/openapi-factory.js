@@ -7,23 +7,26 @@ class PathResolver {
     }
     let mapIteration = currentMap;
     let tokenNames = [];
+    let greedy = false;
     pathTokens.map((token, index) => {
       let updatedToken = token;
       if (token[0] === '{' && token[token.length - 1] === '}') {
         updatedToken = '*';
-        tokenNames.push(token.substring(1, token.length - 1));
+        greedy = token[token.length - 2] === '+';
+        tokenNames.push(token.substring(1, token.length - (greedy ? 2 : 1)));
       }
 
       if (!mapIteration[updatedToken]) {
         mapIteration[updatedToken] = {};
       }
 
-      if (index === pathTokens.length - 1) {
+      if (index === pathTokens.length - 1 || greedy) {
         if (mapIteration[updatedToken]._value) {
           throw new Error(`Path already exists: ${pathString}`);
         }
         mapIteration[updatedToken]._value = mapValue;
         mapIteration[updatedToken]._tokens = tokenNames;
+        if (greedy) { mapIteration[updatedToken]._greedy = greedy; }
       } else {
         mapIteration = mapIteration[updatedToken];
       }
@@ -43,6 +46,8 @@ class PathResolver {
         return null;
       } else if (acc[token] && token !== '*') {
         return acc[token];
+      } else if (acc._greedy) {
+        return acc;
       } else if (acc['*']) {
         tokenList.push(token === '' ? null : decodeURIComponent(token));
         return acc['*'];
