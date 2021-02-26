@@ -137,7 +137,7 @@ class ApiFactory {
       }
 
       let lambda = definedRoute.Handler;
-      event.openApiOptions = definedRoute.Options;
+      event.openApiOptions = definedRoute.Options || {};
       if (!definedRoute.Options.rawBody) {
         // Convert a string body into a javascript object, if it is valid json and raw body is not set.
         try {
