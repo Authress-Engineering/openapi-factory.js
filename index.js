@@ -137,6 +137,7 @@ class ApiFactory {
       }
 
       let lambda = definedRoute.Handler;
+      event.openApiOptions = definedRoute.Options;
       if (!definedRoute.Options.rawBody) {
         // Convert a string body into a javascript object, if it is valid json and raw body is not set.
         try {
@@ -146,7 +147,7 @@ class ApiFactory {
       try {
         let request = await apiFactory.requestMiddleware(event, context);
         let response = await lambda(request, context);
-        let result = await apiFactory.responseMiddleware(event, response);
+        let result = await apiFactory.responseMiddleware(request, response);
         if (!result) { return new Resp(null, 204); }
         if (!(result instanceof Resp)) { return new Resp(result, result && result.statusCode ? null : 200); }
         return result;

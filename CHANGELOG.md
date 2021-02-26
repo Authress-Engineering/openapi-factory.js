@@ -4,6 +4,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 ## 5.0 ##
 * Upgrade to node 12
 * Add greedy matching by add `+` at the end of any dynamic resource replacement.
+* Pass api route options back to the event for reuse in middlewares
 
 ## 4.4 ##
 * Provide a way to override the DefaultPathResolver
