@@ -5,6 +5,9 @@ class PathResolver {
     if (pathTokens[0] === '') {
       pathTokens = pathTokens.slice(1);
     }
+    if (pathTokens.length > 1 && pathTokens[pathTokens.length - 1] === '') {
+      pathTokens = pathTokens.slice(0, -1);
+    }
     let mapIteration = currentMap;
     let tokenNames = [];
     let greedy = false;
@@ -38,6 +41,9 @@ class PathResolver {
     let pathTokens = (pathString || '/').split('/');
     if (pathTokens[0] === '') {
       pathTokens = pathTokens.slice(1);
+    }
+    if (pathTokens.length > 1 && pathTokens[pathTokens.length - 1] === '') {
+      pathTokens = pathTokens.slice(0, -1);
     }
 
     let tokenList = [];

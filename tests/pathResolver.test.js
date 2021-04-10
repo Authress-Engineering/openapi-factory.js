@@ -34,6 +34,18 @@ describe('pathResolver.js', () => {
       };
 
       yield {
+        name: 'strip trailing slash',
+        inputMap: {},
+        path: '/items/',
+        expectedOutputMap: {
+          items: {
+            _tokens: [],
+            _value: testValue
+          }
+        }
+      };
+
+      yield {
         name: 'merge maps',
         inputMap: {
           items: {
@@ -196,6 +208,20 @@ describe('pathResolver.js', () => {
       };
 
       yield {
+        name: 'ignore trailing slash',
+        path: '/resource/',
+        inputMap: {
+          resource: {
+            _value: expectedValue
+          }
+        },
+        expectedValue: {
+          tokens: {},
+          value: expectedValue
+        }
+      };
+
+      yield {
         name: 'first level map',
         path: '/resource',
         inputMap: {
@@ -228,7 +254,7 @@ describe('pathResolver.js', () => {
       };
       yield {
         name: 'dynamic value as null',
-        path: '/resource/',
+        path: '/resource//',
         inputMap: {
           resource: {
             '*': {
@@ -246,7 +272,7 @@ describe('pathResolver.js', () => {
       };
       yield {
         name: 'prefer non-null match',
-        path: '/resource',
+        path: '/resource/',
         inputMap: {
           resource: {
             '_value': expectedValue,
