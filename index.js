@@ -88,7 +88,7 @@ class ApiFactory {
     let definedRoute = null;
 
     const proxyPath = '/{proxy+}';
-    event.path = event.requestContext && event.requestContext.http && event.requestContext.http.path || event.requestContext && event.requestContext.path || event.path;
+    event.path = event.path || event.requestContext && event.requestContext.http && event.requestContext.http.path || event.requestContext.path;
     const routeKey = event.routeKey || event.resource;
     // default to defined path when proxy is not specified.
     if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
@@ -98,8 +98,6 @@ class ApiFactory {
         definedRoute = anyEventHandler[routeKey];
       }
     } else {
-      // modify path to strip out potential stage in path
-      event.path = (routeKey === '$default' ? event.path : `${routeKey.slice(0, -8)}${event.pathParameters.proxy}`);
       // if it is a proxy path then then look up the proxied value.
       let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[method], event.path);
       if (map) {
