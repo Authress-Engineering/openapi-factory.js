@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 5.1 ##
+* Always trust APIGW `event.path` value and don't try to overwrite it.
+
 ## 5.0 ##
 * Upgrade to node 12
 * Add greedy matching by add `+` at the end of any dynamic resource replacement.

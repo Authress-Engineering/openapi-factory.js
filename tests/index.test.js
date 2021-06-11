@@ -193,7 +193,7 @@ describe('index.js', () => {
       api.SetAuthorizer(() => {
         return Promise.reject('Fail this test');
       });
-			
+
       try {
         let result = await api.Authorizer();
         throw `Should not have passed: ${result}`;
@@ -242,7 +242,7 @@ describe('index.js', () => {
         resource: '/test',
         path: '/test'
       });
-			
+
       assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
@@ -476,7 +476,7 @@ describe('index.js', () => {
         pathParameters: {
           proxy: 'test'
         },
-        path: '/test-stage/test',
+        path: '/test',
         type: 'REQUEST',
         methodArn: 'methodArn'
       });
@@ -493,7 +493,7 @@ describe('index.js', () => {
         pathParameters: {
           proxy: 'resource'
         },
-        path: '/test-stage/v1/resource'
+        path: '/v1/resource'
       });
       assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
     });
@@ -508,7 +508,7 @@ describe('index.js', () => {
         pathParameters: {
           proxy: 'resource'
         },
-        path: '/test-stage/v1/resource'
+        path: '/resource'
       });
       assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
     });
