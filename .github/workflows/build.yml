@@ -23,9 +23,9 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Install packages
-      run: npm install
-    - name: Run build
-      run: node make.js build
+      run: yarn --frozen-lockfile
+    - name: Run Setup
+      run: node make.js setup
     - name: Test
       run: yarn lint && yarn test
     - name: Deploy to NPM
