@@ -136,6 +136,10 @@ class ApiFactory {
 
       let lambda = definedRoute.Handler;
       event.openApiOptions = definedRoute.Options || {};
+      if (event.isBase64Encoded) {
+        event.body = Buffer.from(event.body, 'base64').toString('utf8');
+        event.isBase64Encoded = false;
+      }
       if (!definedRoute.Options.rawBody) {
         // Convert a string body into a javascript object, if it is valid json and raw body is not set.
         try {
