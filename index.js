@@ -12,6 +12,7 @@ class ApiFactory {
     this.requestMiddleware = options && options.requestMiddleware || (r => r);
     this.responseMiddleware = options && options.responseMiddleware || ((_, r) => r);
     this.errorMiddleware = options && options.errorMiddleware || ((_, e) => e);
+    this.debug = options && !!options.debug;
     this.handlers = {
       onEvent() {},
       onSchedule() {}
@@ -125,6 +126,10 @@ class ApiFactory {
 
   /* This is the entry point from AWS Lambda. */
   async handler(originalEvent, context) {
+    if (apiFactory.debug) {
+      apiFactory.logger({ level: 'DEBUG', title: 'Original Event, before transformation', originalEvent });
+    }
+
     if (originalEvent.path && !originalEvent.type) {
       let { event, definedRoute } = apiFactory.convertEvent(originalEvent);
       if (!definedRoute) {
@@ -179,10 +184,14 @@ class ApiFactory {
       const { event } = apiFactory.convertEvent(originalEvent);
       try {
         let policy = await apiFactory.Authorizer(event, context);
-        apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
+        if (apiFactory.debug) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
+        }
         return policy;
       } catch (error) {
-        apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure', level: 'WARN', error });
+        if (apiFactory.debug) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure', level: 'WARN', error });
+        }
         throw error;
       }
     }

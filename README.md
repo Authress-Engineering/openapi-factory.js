@@ -13,6 +13,7 @@ The default headers returned unless overriden are
 ```javascript
 	const ApiFactory = require('openapi-factory');
 	let options = {
+    debug: true,
 		requestMiddleware(request, context) {
 
 		},
@@ -71,7 +72,7 @@ The default headers returned unless overriden are
 		console.log('This is he raw body of the request: ', request.body);
 		return { statusCode: 200 };
 	});
-	
+
 	// Example: AWS Api Gateway magic string handling for CORS and 404 fallbacks.
 	api.options('/{proxy+}', () => {
 	  return {
