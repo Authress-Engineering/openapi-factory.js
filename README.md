@@ -13,7 +13,7 @@ The default headers returned unless overriden are
 ```javascript
 	const ApiFactory = require('openapi-factory');
 	let options = {
-    debug: true,
+		debug: true,
 		requestMiddleware(request, context) {
 
 		},
