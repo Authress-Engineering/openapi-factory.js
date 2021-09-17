@@ -129,3 +129,6 @@ class PathResolver {
 	}
 }
 ```
+
+## Lambda@Edge example
+[See Example here](./lambda@edge-cloudfront-wrapper.md)
