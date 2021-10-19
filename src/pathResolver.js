@@ -1,4 +1,13 @@
 /* eslint-disable no-underscore-dangle */
+
+const decodeURIComponentSafe = val => {
+  try {
+    return decodeURIComponent(val);
+  } catch (error) {
+    return val;
+  }
+};
+
 class PathResolver {
   storePath(currentMap, pathString, mapValue) {
     let pathTokens = pathString.split('/');
@@ -55,7 +64,7 @@ class PathResolver {
       } else if (acc._greedy) {
         return acc;
       } else if (acc['*']) {
-        tokenList.push(token === '' ? null : decodeURIComponent(token));
+        tokenList.push(token === '' ? null : decodeURIComponentSafe(token));
         return acc['*'];
       }
       return null;
