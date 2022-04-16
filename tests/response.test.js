@@ -14,6 +14,7 @@ describe('response.js', () => {
         params: [],
         expectedResultObject: {
           statusCode: 200,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Access-Control-Allow-Origin': ['*']
           }
@@ -26,6 +27,7 @@ describe('response.js', () => {
         expectedResultObject: {
           body: JSON.stringify(testObject),
           statusCode: 200,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Content-Type': ['application/links+json'],
             'Access-Control-Allow-Origin': ['*']
@@ -39,6 +41,7 @@ describe('response.js', () => {
         expectedResultObject: {
           body: bufferObject,
           statusCode: 200,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Content-Type': ['application/octet-stream'],
             'Access-Control-Allow-Origin': ['*']
@@ -52,6 +55,7 @@ describe('response.js', () => {
         expectedResultObject: {
           body: JSON.stringify(testObject),
           statusCode: 201,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Content-Type': ['application/links+json'],
             'Access-Control-Allow-Origin': ['*']
@@ -66,6 +70,7 @@ describe('response.js', () => {
         }],
         expectedResultObject: {
           statusCode: 400,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Access-Control-Allow-Origin': ['*']
           }
@@ -82,6 +87,7 @@ describe('response.js', () => {
         }],
         expectedResultObject: {
           statusCode: 200,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Content-Type': ['Override'],
             'Key': ['Value'],
@@ -101,6 +107,7 @@ describe('response.js', () => {
         }],
         expectedResultObject: {
           statusCode: 200,
+          isBase64Encoded: false,
           multiValueHeaders: {
             'Content-Type': ['Override'],
             'Key': ['Value'],

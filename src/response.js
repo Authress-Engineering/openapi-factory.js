@@ -4,6 +4,7 @@ class Response {
     this.body = pullBody ? body.body : body;
     this.statusCode = (pullBody ? body.statusCode : statusCode) || 200;
     let populatedHeaders = (pullBody ? body.headers : headers) || {};
+    this.isBase64Encoded = (pullBody ? body.isBase64Encoded : false) || false;
 
     if (!this.body) {
       delete this.body;
