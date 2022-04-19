@@ -184,6 +184,9 @@ class ApiFactory {
       const { event } = apiFactory.convertEvent(originalEvent);
       try {
         let policy = await apiFactory.Authorizer(event, context);
+        if (!policy.principalId) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure, missing required parameter in policy: principalId', level: 'WARN', details: policy });
+        }
         if (apiFactory.debug) {
           apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
         }
