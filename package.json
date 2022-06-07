@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wparad/node-openapi-factory.git"
+    "url": "git+https://github.com/rhosys/openapi-factory.git"
   },
   "keywords": [
     "aws",
@@ -52,10 +52,10 @@
     "api factory",
     "openapi factory"
   ],
-  "author": "Warren Parad <wparad@gmail.com> (http://wparad.github.io)",
+  "author": "Rhosys Developers <developers@rhosys.ch>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/wparad/node-openapi-factory/issues"
+    "url": "https://github.com/rhosys/openapi-factory/issues"
   },
-  "homepage": "https://github.com/wparad/node-openapi-factory#readme"
+  "homepage": "https://github.com/rhosys/openapi-factory#readme"
 }
