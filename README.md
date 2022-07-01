@@ -5,25 +5,21 @@ API as first class node library to generate clients, servers, and documentation.
 [![npm version](https://badge.fury.io/js/openapi-factory.svg)](https://badge.fury.io/js/openapi-factory)
 
 ### Create an API
-The default headers returned unless overriden are
-* For a JSON Object: `{ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }`
-* For a binary Object: `{ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }`
 
-```javascript
+```js
 	const ApiFactory = require('openapi-factory');
-	let options = {
-		debug: true,
+	const options = {
 		requestMiddleware(request, context) {
-
+      return request;
 		},
 		responseMiddleware(request, response) {
-
+      return response;
 		},
 		errorMiddleware(request, error) {
-
+      return { statusCode: 500, body: { message: 'Unexpected Error' } };
 		}
 	};
-	let api = new ApiFactory(options);
+	const api = new ApiFactory(options);
 
 	api.get('/example', async request => {
 		// which auto wraps => body: { value: 'test' }, statusCode => 200, headers => application/json
@@ -43,22 +39,24 @@ The default headers returned unless overriden are
 
 	// converts dynamic variables paths
 	api.get('/example/{id}/subpath', request => {
-		let idFromPath = request.pathParameters.id;
-		let stageVariable = request.stageVariables.VARIABLE_NAME;
-		let query = request.queryStringParameters.QUERY_NAME;
-		let headers = request.headers.HEADER_NAME;
+		const idFromPath = request.pathParameters.id;
+		const stageVariable = request.stageVariables.VARIABLE_NAME;
+		const query = request.queryStringParameters.QUERY_NAME;
+		const headers = request.headers.HEADER_NAME;
 	});
 
 	api.setAuthorizer(request => {
-		return 'valid-policy-doument';
+		return 'valid-policy-document';
 	});
 
 	api.onEvent(event => {
-		console.log('triggered by event trigger');
+		console.log('triggered by a direct invocation from a Lambda Event Source.');
+    // AWS Documentation: https://docs.aws.amazon.com/lambda/latest/dg/lambda-services.html
+    // Example payloads: https://lambda.101i.de/
 	});
 
 	api.onSchedule(data => {
-		console.log('triggered by a schedule');
+		console.log('triggered by a CloudWatch Rule schedule');
 	});
 
 	api.get('/items/{itemid}', async request => {
@@ -95,6 +93,11 @@ The default headers returned unless overriden are
 	});
 
 ```
+
+### Default Headers
+The default headers returned unless overwritten are:
+* For a JSON Object: `{ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }`
+* For a binary Object: `{ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }`
 
 #### Custom PathResolver
 It is possible that the default handling of REST routes does not match explicitly match your strategy for resolution. Since there is nothing more than string matching it is fairly easy to hoist this function.
