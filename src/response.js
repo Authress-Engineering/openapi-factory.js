@@ -4,6 +4,7 @@ class Response {
     this.body = pullBody ? body.body : body;
     this.statusCode = (pullBody ? body.statusCode : statusCode) || 200;
     let populatedHeaders = (pullBody ? body.headers : headers) || {};
+    this.isBase64Encoded = (pullBody ? body.isBase64Encoded : false) || false;
 
     if (!this.body) {
       delete this.body;
@@ -11,7 +12,7 @@ class Response {
     } else if (this.body && this.body instanceof Buffer) {
       populatedHeaders = Object.assign({ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }, populatedHeaders);
     } else {
-      this.body = JSON.stringify(this.body);
+      this.body = this.isBase64Encoded ? this.body : JSON.stringify(this.body);
       populatedHeaders = Object.assign({ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }, populatedHeaders);
     }
 

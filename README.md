@@ -3,7 +3,6 @@
 API as first class node library to generate clients, servers, and documentation. To simplify the creation and management of serverless cloud API, manage the server and api using the OpenAPI Factory.
 
 [![npm version](https://badge.fury.io/js/openapi-factory.svg)](https://badge.fury.io/js/openapi-factory)
-[![Build Status](https://travis-ci.org/wparad/openapi-factory.js.svg?branch=master)](https://travis-ci.org/wparad/openapi-factory.js)
 
 ### Create an API
 The default headers returned unless overriden are
@@ -13,6 +12,7 @@ The default headers returned unless overriden are
 ```javascript
 	const ApiFactory = require('openapi-factory');
 	let options = {
+		debug: true,
 		requestMiddleware(request, context) {
 
 		},
@@ -71,7 +71,7 @@ The default headers returned unless overriden are
 		console.log('This is he raw body of the request: ', request.body);
 		return { statusCode: 200 };
 	});
-	
+
 	// Example: AWS Api Gateway magic string handling for CORS and 404 fallbacks.
 	api.options('/{proxy+}', () => {
 	  return {
@@ -128,3 +128,6 @@ class PathResolver {
 	}
 }
 ```
+
+## Lambda@Edge example
+[See Example here](./lambda@edge-cloudfront-wrapper.md)

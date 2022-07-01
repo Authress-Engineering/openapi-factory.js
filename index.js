@@ -12,6 +12,7 @@ class ApiFactory {
     this.requestMiddleware = options && options.requestMiddleware || (r => r);
     this.responseMiddleware = options && options.responseMiddleware || ((_, r) => r);
     this.errorMiddleware = options && options.errorMiddleware || ((_, e) => e);
+    this.debug = options && !!options.debug;
     this.handlers = {
       onEvent() {},
       onSchedule() {}
@@ -89,6 +90,9 @@ class ApiFactory {
 
     const proxyPath = '/{proxy+}';
     event.path = event.path || event.requestContext && event.requestContext.http && event.requestContext.http.path || event.requestContext.path;
+    // Remove stage from Path
+    event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
+
     const routeKey = event.routeKey || event.resource;
     // default to defined path when proxy is not specified.
     if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
@@ -107,9 +111,6 @@ class ApiFactory {
       }
     }
 
-    // Remove stage from Path
-    event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
-
     // either it is proxied and not defined or not defined, either way go to the proxy method.
     if (!definedRoute) {
       if (mainEventHandler && mainEventHandler[proxyPath]) {
@@ -125,6 +126,10 @@ class ApiFactory {
 
   /* This is the entry point from AWS Lambda. */
   async handler(originalEvent, context) {
+    if (apiFactory.debug) {
+      apiFactory.logger({ level: 'DEBUG', title: 'Original Event, before transformation', originalEvent });
+    }
+
     if (originalEvent.path && !originalEvent.type) {
       let { event, definedRoute } = apiFactory.convertEvent(originalEvent);
       if (!definedRoute) {
@@ -137,7 +142,7 @@ class ApiFactory {
       let lambda = definedRoute.Handler;
       event.openApiOptions = definedRoute.Options || {};
       if (event.isBase64Encoded) {
-        event.body = Buffer.from(event.body, 'base64').toString('utf8');
+        event.body = Buffer.from(event.body || '', 'base64').toString('utf8');
         event.isBase64Encoded = false;
       }
       if (!definedRoute.Options.rawBody) {
@@ -179,10 +184,17 @@ class ApiFactory {
       const { event } = apiFactory.convertEvent(originalEvent);
       try {
         let policy = await apiFactory.Authorizer(event, context);
-        apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
+        if (!policy.principalId) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure, missing required parameter in policy: principalId', level: 'WARN', details: policy });
+        }
+        if (apiFactory.debug) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Success', level: 'INFO', details: policy });
+        }
         return policy;
       } catch (error) {
-        apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure', level: 'WARN', error });
+        if (apiFactory.debug) {
+          apiFactory.logger({ title: 'OpenAPI-Factory: PolicyResult Failure', level: 'WARN', error });
+        }
         throw error;
       }
     }
