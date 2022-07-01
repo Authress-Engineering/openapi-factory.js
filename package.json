@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "description": "Build API's and serverless code using node and first class functions.",
   "main": "index.js",
+  "types": "index.d.ts",
   "files": [
     "index.js",
+    "index.d.ts",
     "src"
   ],
   "engines": {
@@ -53,7 +55,7 @@
     "openapi factory"
   ],
   "author": "Rhosys Developers <developers@rhosys.ch>",
-  "license": "GPL-3.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/rhosys/openapi-factory.js/issues"
   },
