@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 const Resp = require('./src/response');
 const PathResolver = require('./src/pathResolver');
 let isFunction = obj => { return !!(obj && obj.constructor && obj.call && obj.apply); };
@@ -7,6 +8,7 @@ let apiFactory = null;
 
 class ApiFactory {
   constructor(options, overrideLogger = null) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     apiFactory = this;
     this.Authorizer = null;
     this.requestMiddleware = options && options.requestMiddleware || (r => r);

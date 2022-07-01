@@ -15,6 +15,9 @@ let sandbox;
 beforeEach(() => { sandbox = sinon.sandbox.create(); });
 afterEach(() => sandbox.restore());
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noopFunction = () => {};
+
 describe('index.js', () => {
   describe('middleware', () => {
     it('requestMiddleware', async () => {
@@ -47,7 +50,7 @@ describe('index.js', () => {
           return response;
         }
       };
-      let api = new Api(options, () => {});
+      let api = new Api(options, noopFunction);
       api.get('/test', () => {
         return { statusCode: 200 };
       });
@@ -70,7 +73,7 @@ describe('index.js', () => {
           return error;
         }
       };
-      let api = new Api(options, () => {});
+      let api = new Api(options, noopFunction);
       api.get('/test', () => {
         throw testError;
       });
@@ -93,7 +96,7 @@ describe('index.js', () => {
           throw error;
         }
       };
-      let api = new Api(options, () => {});
+      let api = new Api(options, noopFunction);
       api.get('/test', () => {
         throw testError;
       });
@@ -119,7 +122,7 @@ describe('index.js', () => {
           return response;
         }
       };
-      let api = new Api(options, () => {});
+      let api = new Api(options, noopFunction);
       api.get('/test', () => {
         return { statusCode: 200 };
       });
@@ -135,7 +138,7 @@ describe('index.js', () => {
   });
   describe('methods', () => {
     it('Check expected API Methods', () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       assert.isFunction(api.head, 'HEAD has not been defined.');
       assert.isFunction(api.get, 'GET has not been defined.');
       assert.isFunction(api.put, 'PUT has not been defined.');
@@ -147,12 +150,12 @@ describe('index.js', () => {
   });
   describe('authorizer', () => {
     it('check call to default authorizerFunc', () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       assert(api.Authorizer === null);
     });
     it('check call to false authorizerFunc', () => {
       try {
-        let api = new Api(null, () => {});
+        let api = new Api(null, noopFunction);
         api.SetAuthorizer(() => false);
         let result = api.Authorizer();
         //result should be false;
@@ -163,7 +166,7 @@ describe('index.js', () => {
       }
     });
     it('check call to false authorizerFunc', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.SetAuthorizer(() => {
         return Promise.reject('Unauthorized');
       });
@@ -175,21 +178,21 @@ describe('index.js', () => {
       }
     });
     it('check call to success authorizerFunc', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.SetAuthorizer(() => {
         return Promise.resolve();
       });
       await api.Authorizer();
     });
     it('check call to success authorizer', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.SetAuthorizer(() => {
         return Promise.resolve();
       });
       await api.Authorizer();
     });
     it('check call to failure authorizer', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.SetAuthorizer(() => {
         return Promise.reject('Fail this test');
       });
@@ -202,7 +205,7 @@ describe('index.js', () => {
       }
     });
     it('check call to failure authorizer handler', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       try {
         await api.handler({
           type: 'REQUEST',
@@ -215,7 +218,7 @@ describe('index.js', () => {
     });
     it('check call to failure when no authorizer defined', async () => {
       try {
-        let api = new Api(null, () => {});
+        let api = new Api(null, noopFunction);
         await api.handler({
           type: 'REQUEST',
           methodArn: 'authorizationHandlerTest'
@@ -232,7 +235,7 @@ describe('index.js', () => {
       pathResolverMock.expects('storePath').returns({});
       pathResolverMock.expects('resolvePath').returns(null);
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.any('/test', () => {
         return new Response(expectedResult);
       });
@@ -252,7 +255,7 @@ describe('index.js', () => {
       pathResolverMock.expects('resolvePath').returns(null);
 
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         return new Response(expectedResult);
       });
@@ -270,7 +273,7 @@ describe('index.js', () => {
       pathResolverMock.expects('storePath').returns({});
       pathResolverMock.expects('resolvePath').returns(null);
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         return Promise.resolve(new Response(expectedResult));
       });
@@ -285,7 +288,7 @@ describe('index.js', () => {
     });
     it('check promise result to GET handler with object', async () => {
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         return Promise.resolve({ body: expectedResult, statusCode: 201 });
       });
@@ -305,7 +308,7 @@ describe('index.js', () => {
       pathResolverMock.expects('resolvePath').returns(null);
 
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         return Promise.reject(expectedResult);
       });
@@ -321,7 +324,7 @@ describe('index.js', () => {
     });
     it('check promise rejection to GET handler with object', async () => {
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         throw { body: expectedResult, statusCode: 500 };
       });
@@ -339,7 +342,7 @@ describe('index.js', () => {
       pathResolverMock.expects('storePath').returns({});
       pathResolverMock.expects('resolvePath').returns(null);
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         throw expectedResult;
       });
@@ -358,7 +361,7 @@ describe('index.js', () => {
       pathResolverMock.expects('resolvePath').returns(null);
 
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         throw { body: expectedResult, statusCode: 401 };
       });
@@ -373,7 +376,7 @@ describe('index.js', () => {
     });
     it('validate default parameters', async () => {
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', request => {
         assert.isNotNull(request.pathParameters);
         assert.isNotNull(request.stageVariables);
@@ -391,7 +394,7 @@ describe('index.js', () => {
     });
     it('validate default parameters when api gateways are null', async () => {
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', request => {
         assert.isNotNull(request.path);
         assert.isNotNull(request.stage);
@@ -416,7 +419,7 @@ describe('index.js', () => {
       let expcetedStageVariables = { h: 3 };
 
       let expectedResult = { value: 5 };
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', request => {
         assert.equal(request.pathParameters, expectedPathParameters);
         assert.equal(request.stageVariables, expcetedStageVariables);
@@ -448,7 +451,7 @@ describe('index.js', () => {
         }
       });
 
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/test', () => {
         return new Response(expectedResult);
       });
@@ -465,7 +468,7 @@ describe('index.js', () => {
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
     it('check for authorizer proxy path change', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.setAuthorizer(request => {
         return request.path === '/test';
       });
@@ -483,7 +486,7 @@ describe('index.js', () => {
       assert.deepEqual(output, true, 'Output data does not match expected.');
     });
     it('check proxy path with prefix resolves correctly', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/v1/resource', () => {
         return true;
       });
@@ -498,7 +501,7 @@ describe('index.js', () => {
       assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
     });
     it('check proxy path without prefix resolves correctly', async () => {
-      let api = new Api(null, () => {});
+      let api = new Api(null, noopFunction);
       api.get('/resource', () => {
         return true;
       });

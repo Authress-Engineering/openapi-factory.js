@@ -1,30 +1,30 @@
-declare namespace OpenApi {
-  interface ApiOptions {
-      requestMiddleware?: (() => any) | undefined;
-      responseMiddleware?: (() => any) | undefined;
-      errorMiddleware?: (() => any) | undefined;
+export namespace OpenApi {
+  export interface ApiOptions {
+      requestMiddleware?: (() => unknown) | undefined;
+      responseMiddleware?: (() => unknown) | undefined;
+      errorMiddleware?: (() => unknown) | undefined;
   }
 
-  interface HttpMethodOptions {
+  export interface HttpMethodOptions {
       rawBody?: boolean | undefined;
   }
 
-  interface HttpResponse {
+  export interface HttpResponse {
       statusCode?: number | undefined;
       headers?: object | undefined;
       body?: (object | string) | undefined;
   }
 }
 
-declare class OpenApi {
+export class OpenApi {
   constructor(options: OpenApi.ApiOptions, overrideLogger?: () => void);
 
-  setAuthorizer(authorizerFunc: (req?: any) => Promise<any>): void;
-  onEvent(onEventFunc: (req?: any) => Promise<any>): void;
-  onSchedule(onScheduleFunc: (req?: any) => Promise<any>): void;
+  setAuthorizer(authorizerFunc: (req?: unknown) => Promise<unknown>): void;
+  onEvent(onEventFunc: (req?: unknown) => Promise<unknown>): void;
+  onSchedule(onScheduleFunc: (req?: unknown) => Promise<unknown>): void;
 
   head(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
-  head(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: any) => any): void;
+  head(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 
   get(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   get(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
@@ -47,7 +47,5 @@ declare class OpenApi {
   any(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   any(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 
-  handler(event: object, context: object): Promise<any>;
+  handler(event: object, context: object): Promise<unknown>;
 }
-
-export = OpenApi;
