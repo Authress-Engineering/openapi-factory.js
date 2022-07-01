@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rhosys/openapi-factory.git"
+    "url": "git+https://github.com/rhosys/openapi-factory.js.git"
   },
   "keywords": [
     "aws",
@@ -55,7 +55,7 @@
   "author": "Rhosys Developers <developers@rhosys.ch>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/rhosys/openapi-factory/issues"
+    "url": "https://github.com/rhosys/openapi-factory.js/issues"
   },
-  "homepage": "https://github.com/rhosys/openapi-factory#readme"
+  "homepage": "https://github.com/rhosys/openapi-factory.js#readme"
 }
