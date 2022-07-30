@@ -12,7 +12,7 @@ class Response {
     } else if (this.body && this.body instanceof Buffer) {
       populatedHeaders = Object.assign({ 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*' }, populatedHeaders);
     } else {
-      this.body = this.isBase64Encoded ? this.body : JSON.stringify(this.body);
+      this.body = this.isBase64Encoded || typeof this.body !== 'object' ? this.body : JSON.stringify(this.body);
       populatedHeaders = Object.assign({ 'Content-Type': 'application/links+json', 'Access-Control-Allow-Origin': '*' }, populatedHeaders);
     }
 
