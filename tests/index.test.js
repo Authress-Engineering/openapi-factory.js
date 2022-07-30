@@ -498,7 +498,7 @@ describe('index.js', () => {
         },
         path: '/v1/resource'
       });
-      assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
+      assert.deepEqual(output.body, true, 'Output data does not match expected.');
     });
     it('check proxy path without prefix resolves correctly', async () => {
       let api = new Api(null, noopFunction);
@@ -513,7 +513,7 @@ describe('index.js', () => {
         },
         path: '/resource'
       });
-      assert.deepEqual(output.body, 'true', 'Output data does not match expected.');
+      assert.deepEqual(output.body, true, 'Output data does not match expected.');
     });
   });
 });
