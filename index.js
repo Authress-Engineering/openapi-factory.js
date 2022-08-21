@@ -132,6 +132,14 @@ class ApiFactory {
       apiFactory.logger({ level: 'DEBUG', title: 'Original Event, before transformation', originalEvent });
     }
 
+    //transforming event For HttpAPI payload version 2.0
+    if(originalEvent.version === "2.0"){
+      const path = originalEvent.rawPath;
+      const httpMethod = originalEvent.requestContext.method;
+      const [, resource] = originalEvent.routeKey.split(' ');
+      originalEvent = {...originalEvent, path, httpMethod, resource};
+    }
+
     if (originalEvent.path && !originalEvent.type) {
       let { event, definedRoute } = apiFactory.convertEvent(originalEvent);
       if (!definedRoute) {
