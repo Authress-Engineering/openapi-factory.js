@@ -249,6 +249,29 @@ describe('index.js', () => {
       assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
+    it('check promise rejection when call to ANY handler with no path', async () => {
+      let pathResolverMock = sandbox.mock(PathResolver.prototype);
+      pathResolverMock.expects('storePath').returns({});
+      pathResolverMock.expects('resolvePath').returns(null);
+      let expectedResult = { value: 5 };
+      let api = new Api(null, noopFunction);
+      api.any('/test', () => {
+        return new Response(expectedResult);
+      });
+
+      try {
+        let output = await api.handler({
+          httpMethod: 'GET',
+          resource: '/test',
+          path: null
+        });
+        throw 'the test should fail when no path is set';
+      } catch (e) {
+        return;
+      }
+      // assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+      // assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
+    });
     it('check call to GET handler', async () => {
       let pathResolverMock = sandbox.mock(PathResolver.prototype);
       pathResolverMock.expects('storePath').returns({});
