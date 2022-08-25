@@ -249,7 +249,7 @@ describe('index.js', () => {
       assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
-    it('check promise rejection when call to ANY handler with no path', async () => {
+    it('check call to ANY handler with HttpApiV2 event object', async () => {
       let pathResolverMock = sandbox.mock(PathResolver.prototype);
       pathResolverMock.expects('storePath').returns({});
       pathResolverMock.expects('resolvePath').returns(null);
@@ -258,19 +258,20 @@ describe('index.js', () => {
       api.any('/test', () => {
         return new Response(expectedResult);
       });
+      const event = {
+        version: '2.0',
+        routeKey: 'ANY /{proxy+}',
+        rawPath: '/somePath',
+        rawQueryString: '',
+        headers: {},
+        requestContext: {},
+        pathParameters: {},
+        isBase64Encoded: false };
 
-      try {
-        let output = await api.handler({
-          httpMethod: 'GET',
-          resource: '/test',
-          path: null
-        });
-        throw 'the test should fail when no path is set';
-      } catch (e) {
-        return;
-      }
-      // assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
-      // assert.strictEqual(output.statusCode, 500, 'Promise rejections should be 500');
+      let output = await api.handler(event);
+
+      assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
+      assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
     it('check call to GET handler', async () => {
       let pathResolverMock = sandbox.mock(PathResolver.prototype);
