@@ -95,7 +95,9 @@ class ApiFactory {
     // Remove stage from Path
     event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
 
-    const routeKey = event.routeKey || event.resource;
+    // The replace handles cases where the route key is prepended with a method from API Gateway
+    const routeKey = event.routeKey && event.routeKey.replace(/^[A-Z]+\s/, '') || event.resource;
+
     // default to defined path when proxy is not specified.
     if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
       if (mainEventHandler && mainEventHandler[routeKey]) {
@@ -132,7 +134,7 @@ class ApiFactory {
       apiFactory.logger({ level: 'DEBUG', title: 'Original Event, before transformation', originalEvent });
     }
 
-    if (originalEvent.path && !originalEvent.type) {
+    if ((originalEvent.path || originalEvent.rawPath) && !originalEvent.type) {
       let { event, definedRoute } = apiFactory.convertEvent(originalEvent);
       if (!definedRoute) {
         return new Resp({

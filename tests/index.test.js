@@ -249,26 +249,35 @@ describe('index.js', () => {
       assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
     });
+
+    // https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#services-apigateway-apitypes
     it('check call to ANY handler with HttpApiV2 event object', async () => {
       let pathResolverMock = sandbox.mock(PathResolver.prototype);
       pathResolverMock.expects('storePath').returns({});
       pathResolverMock.expects('resolvePath').returns(null);
       let expectedResult = { value: 5 };
       let api = new Api(null, noopFunction);
-      api.any('/test', () => {
+      api.get('/test', () => {
         return new Response(expectedResult);
       });
       const event = {
         version: '2.0',
-        routeKey: 'ANY /{proxy+}',
-        rawPath: '/somePath',
+        routeKey: 'ANY /test',
+        rawPath: '/default/test',
         rawQueryString: '',
         headers: {},
-        requestContext: {},
-        pathParameters: {},
-        isBase64Encoded: false };
+        requestContext: {
+          http: {
+            method: 'GET',
+            path: '/default/test'
+          },
+          routeKey: 'ANY /test',
+          stage: 'default'
+        },
+        isBase64Encoded: true
+      };
 
-      let output = await api.handler(event);
+      const output = await api.handler(event);
 
       assert.deepEqual(JSON.parse(output.body), expectedResult, 'Output data does not match expected.');
       assert.strictEqual(output.statusCode, 200, 'Status code should be 200');
