@@ -49,6 +49,7 @@ class ApiFactory {
   post(route, p0, p1) { this.method('POST', route, p0, p1); }
   put(route, p0, p1) { this.method('PUT', route, p0, p1); }
   patch(route, p0, p1) { this.method('PATCH', route, p0, p1); }
+  query(route, p0, p1) { this.method('QUERY', route, p0, p1); }
   delete(route, p0, p1) { this.method('DELETE', route, p0, p1); }
   options(route, p0, p1) { this.method('OPTIONS', route, p0, p1); }
   any(route, p0, p1) { this.method('ANY', route, p0, p1); }

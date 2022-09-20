@@ -4,6 +4,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 ## 5.2 ##
 * Enable returning strings as response bodies.
 * Support API Gateway HTTP API (v2).
+* Support `QUERY` method verb.
 
 ## 5.1 ##
 * Always trust APIGW `event.path` value and don't try to overwrite it.

@@ -143,6 +143,7 @@ describe('index.js', () => {
       assert.isFunction(api.get, 'GET has not been defined.');
       assert.isFunction(api.put, 'PUT has not been defined.');
       assert.isFunction(api.patch, 'PATCH has not been defined.');
+      assert.isFunction(api.query, 'QUERY has not been defined.');
       assert.isFunction(api.post, 'POST has not been defined.');
       assert.isFunction(api.delete, 'DELETE has not been defined.');
       assert.isFunction(api.any, 'ANY has not been defined.');
