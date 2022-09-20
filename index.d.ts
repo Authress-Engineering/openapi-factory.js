@@ -38,6 +38,9 @@ export class OpenApi {
   patch(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   patch(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 
+  query(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
+  query(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
+
   delete(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   delete(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 
