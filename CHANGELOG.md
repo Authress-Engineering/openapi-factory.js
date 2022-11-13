@@ -1,6 +1,9 @@
 # Change log
 This is the changelog for [OpenAPI Factory](readme.md).
 
+## 5.3 ##
+* Upgrade to node 14
+
 ## 5.2 ##
 * Enable returning strings as response bodies.
 * Support API Gateway HTTP API (v2).
