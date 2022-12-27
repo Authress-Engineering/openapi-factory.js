@@ -1,8 +1,17 @@
 # OpenAPI Factory (Javascript)
 
-API as first class node library to generate clients, servers, and documentation. To simplify the creation and management of serverless cloud API, manage the server and api using the OpenAPI Factory.
-
 [![npm version](https://badge.fury.io/js/openapi-factory.svg)](https://badge.fury.io/js/openapi-factory)
+
+Provides an simple event interceptor for AWS Lambda. Handles events tha come from API Gateway, SQS, EventBridge, and all other AWS services and routes them to appropriate lambda code. This enables you to have single AWS Lambda function for your whole service instead of needing tons of nano-ones to handle every route.
+
+By merging your lambda functions together, you eliminate 99% of all cold starts, and simplify deployment to AWS Lambda.
+
+## Partner libraries
+Each of these usable completely independently. But both work together as well:
+
+With the (aws-architect)[https://www.npmjs.com/package/aws-architect] npm package, you can also develop your lambda locally, spinning up a full HTTP API to have quick development cycles.
+* The **OpenAPI Factory** provides the production runtime wrapper to convert all the different AWS events into a simple format and processes the result
+* The **AWS Architect** library, let's you build, test, and run locally your lambda. And when you are ready it automatically packages your lambda and publishes it in S3, making it ready to pull into your Infrastructure as Code solution as soon as you would like.
 
 ### Create an API
 
