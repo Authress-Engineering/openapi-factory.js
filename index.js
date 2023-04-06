@@ -74,12 +74,12 @@ class ApiFactory {
       Handler: handler,
       Options: options || {}
     };
-    if (!apiFactory.Routes[verb]) {
-      apiFactory.Routes[verb] = {};
-      apiFactory.ProxyRoutes[verb] = {};
+    if (!apiFactory.Routes[path]) {
+      apiFactory.Routes[path] = {};
+      apiFactory.ProxyRoutes[path] = {};
     }
-    apiFactory.Routes[verb][path] = api;
-    apiFactory.ProxyRoutes[verb] = apiFactory.pathResolver.storePath(apiFactory.ProxyRoutes[verb], path, api);
+    apiFactory.Routes[path][verb] = api;
+    apiFactory.ProxyRoutes = apiFactory.pathResolver.storePath(apiFactory.ProxyRoutes, verb, path, api);
     if (!apiFactory.paths[path]) {
       apiFactory.paths[path] = {};
     }
@@ -93,13 +93,13 @@ class ApiFactory {
   }
 
   convertEvent(event) {
+    event.openApiOptions = event.openApiOptions || {};
     event.queryStringParameters = event.queryStringParameters || {};
     event.stageVariables = event.stageVariables || {};
     event.pathParameters = event.pathParameters || {};
 
+    let definedMethods = [];
     const method = event.httpMethod || event.requestContext && event.requestContext.http && event.requestContext.http.method;
-    let mainEventHandler = apiFactory.Routes[method];
-    let anyEventHandler = apiFactory.Routes.ANY;
     let definedRoute = null;
 
     const proxyPath = '/{proxy+}';
@@ -112,16 +112,17 @@ class ApiFactory {
 
     // default to defined path when proxy is not specified.
     if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
-      if (mainEventHandler && mainEventHandler[routeKey]) {
-        definedRoute = mainEventHandler[routeKey];
-      } else if (anyEventHandler && anyEventHandler[routeKey]) {
-        definedRoute = anyEventHandler[routeKey];
+      if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey][method]) {
+        definedRoute = apiFactory.Routes[routeKey][method];
+      } else if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey].ANY) {
+        definedRoute = apiFactory.Routes[routeKey].ANY;
       }
     } else {
       // if it is a proxy path then then look up the proxied value.
-      let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes[method], event.path);
+      let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes, method, event.path);
       if (map) {
         definedRoute = map.value;
+        definedMethods = map.methods;
         delete event.pathParameters.proxy;
         event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
       }
@@ -129,14 +130,21 @@ class ApiFactory {
 
     // either it is proxied and not defined or not defined, either way go to the proxy method.
     if (!definedRoute) {
-      if (mainEventHandler && mainEventHandler[proxyPath]) {
-        definedRoute = mainEventHandler[proxyPath];
-      } else if (anyEventHandler && anyEventHandler[proxyPath]) {
-        definedRoute = anyEventHandler[proxyPath];
+      if (apiFactory.Routes[proxyPath] && apiFactory.Routes[proxyPath][method]) {
+        definedRoute = apiFactory.Routes[proxyPath][method];
+      } else if (apiFactory.Routes[proxyPath] && apiFactory.Routes[proxyPath].ANY) {
+        definedRoute = apiFactory.Routes[proxyPath].ANY;
       }
     }
 
-    event.route = definedRoute && definedRoute.ResourcePath;
+    if (definedRoute) {
+      event.route = definedRoute.ResourcePath;
+      event.openApiOptions.definedMethods = definedMethods;
+      return { event, definedRoute };
+    }
+
+    event.route = null;
+    event.openApiOptions.definedMethods = definedMethods;
     return { event, definedRoute };
   }
 
@@ -156,7 +164,7 @@ class ApiFactory {
       }
 
       let lambda = definedRoute.Handler;
-      event.openApiOptions = definedRoute.Options || {};
+      event.openApiOptions = Object.assign({}, event.openApiOptions, definedRoute.Options || {});
       if (event.isBase64Encoded) {
         event.body = Buffer.from(event.body || '', 'base64').toString('utf8');
         event.isBase64Encoded = false;
@@ -167,6 +175,7 @@ class ApiFactory {
           event.body = JSON.parse(event.body);
         } catch (e) { /* */ }
       }
+
       try {
         let request = await apiFactory.requestMiddleware(event, context);
         let response = await lambda(request, context);

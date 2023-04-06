@@ -30,6 +30,7 @@ function getApi() {
   // same route different methods
   api.get('/v1/users/{userId}', spyMap['GET-USER'] = sinon.spy(() => 'GET-USER'));
   api.delete('/v1/users/{userId}', spyMap['DELETE-USER'] = sinon.spy(() => 'DELETE-USER'));
+  api.any('/v1/users/{userId}', spyMap['ANY-USER'] = sinon.spy(() => 'ANY-USER'));
 
   // sub routes all same method
   api.get('/v1/users/{userId}/resources', spyMap.PATH = sinon.spy(() => 'PATH'));
@@ -369,6 +370,26 @@ describe('index.js', () => {
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].httpMethod).to.eql('GET');
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].path).to.eql('/test');
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ });
+    });
+
+    it('Validate ANY works when the wrong method is picked', async () => {
+      const output = await getApi().handler({ httpMethod: 'GET', resource: '/{proxy+}', path: '/v1/resources/resourceUri' });
+      expect(output.body).to.equal('ANY-PROXY');
+      expect(spyMap['ANY-PROXY'].calledOnce).to.be.true;
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].openApiOptions).to.eql({ definedMethods: ['PUT'], anonymous: true });
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].httpMethod).to.eql('GET');
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].path).to.eql('/v1/resources/resourceUri');
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ resourceUri: 'resourceUri' });
+    });
+
+    it('Validate ANY works', async () => {
+      const output = await getApi().handler({ httpMethod: 'PUT', resource: '/{proxy+}', path: '/v1/users/userId' });
+      expect(output.body).to.equal('ANY-USER');
+      expect(spyMap['ANY-USER'].calledOnce).to.be.true;
+      expect(spyMap['ANY-USER'].getCall(0).args[0].openApiOptions).to.eql({ definedMethods: ['GET', 'DELETE'] });
+      expect(spyMap['ANY-USER'].getCall(0).args[0].httpMethod).to.eql('PUT');
+      expect(spyMap['ANY-USER'].getCall(0).args[0].path).to.eql('/v1/users/userId');
+      expect(spyMap['ANY-USER'].getCall(0).args[0].pathParameters).to.eql({ userId: 'userId' });
     });
   });
 });
