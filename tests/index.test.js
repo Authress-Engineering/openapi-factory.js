@@ -12,7 +12,7 @@ const Response = require('../src/response');
 chai.use(sinonChai);
 
 let sandbox;
-beforeEach(() => { sandbox = sinon.sandbox.create(); });
+beforeEach(() => { sandbox = sinon.createSandbox(); });
 afterEach(() => sandbox.restore());
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -450,13 +450,13 @@ describe('index.js', () => {
     it('validate default parameters do not override', async () => {
       let expectedQueryStringParameters = { h: 1 };
       let expectedPathParameters = { h: 2 };
-      let expcetedStageVariables = { h: 3 };
+      let expectedStageVariables = { h: 3 };
 
       let expectedResult = { value: 5 };
       let api = new Api(null, noopFunction);
       api.get('/test', request => {
         assert.equal(request.pathParameters, expectedPathParameters);
-        assert.equal(request.stageVariables, expcetedStageVariables);
+        assert.equal(request.stageVariables, expectedStageVariables);
         assert.equal(request.queryStringParameters, expectedQueryStringParameters);
         return Promise.resolve({ body: expectedResult, statusCode: 201 });
       });
@@ -464,7 +464,7 @@ describe('index.js', () => {
       let output = await api.handler({
         httpMethod: 'GET',
         resource: '/test',
-        stageVariables: expcetedStageVariables,
+        stageVariables: expectedStageVariables,
         pathParameters: expectedPathParameters,
         path: '/test',
         queryStringParameters: expectedQueryStringParameters
