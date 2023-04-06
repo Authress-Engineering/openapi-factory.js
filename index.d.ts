@@ -23,6 +23,11 @@ export class OpenApi {
   onEvent(onEventFunc: (req?: unknown) => Promise<unknown>): void;
   onSchedule(onScheduleFunc: (req?: unknown) => Promise<unknown>): void;
 
+  /**
+   * @returns The the Path map { [path]: { [method]: {metadata} } } for discovery usage.
+   */
+  getPathMap(): Record<string, Record<string, unknown>>;
+
   head(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   head(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 

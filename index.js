@@ -21,6 +21,7 @@ class ApiFactory {
     };
     this.Routes = {};
     this.ProxyRoutes = {};
+    this.paths = {};
     this.pathResolver = options && options.pathResolver || new PathResolver();
     this.logger = overrideLogger || (message => console.log(JSON.stringify(message, null, 2)));
   }
@@ -79,6 +80,16 @@ class ApiFactory {
     }
     apiFactory.Routes[verb][path] = api;
     apiFactory.ProxyRoutes[verb] = apiFactory.pathResolver.storePath(apiFactory.ProxyRoutes[verb], path, api);
+    if (!apiFactory.paths[path]) {
+      apiFactory.paths[path] = {};
+    }
+    if (verb !== 'ANY') {
+      apiFactory.paths[path][verb] = {};
+    }
+  }
+
+  getPathMap() {
+    return apiFactory.paths;
   }
 
   convertEvent(event) {
