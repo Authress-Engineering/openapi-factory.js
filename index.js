@@ -119,13 +119,11 @@ class ApiFactory {
       } else if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey].ANY) {
         definedRoute = apiFactory.Routes[routeKey].ANY;
       }
-    } else {
+    } else if (map) {
       // if it is a proxy path then then look up the proxied value.
-      if (map) {
-        definedRoute = map.value;
-        delete event.pathParameters.proxy;
-        event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
-      }
+      definedRoute = map.value;
+      delete event.pathParameters.proxy;
+      event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
     }
 
     // either it is proxied and not defined or not defined, either way go to the proxy method.
