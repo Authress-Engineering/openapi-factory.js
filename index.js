@@ -98,7 +98,6 @@ class ApiFactory {
     event.stageVariables = event.stageVariables || {};
     event.pathParameters = event.pathParameters || {};
 
-    let definedMethods = [];
     const method = event.httpMethod || event.requestContext && event.requestContext.http && event.requestContext.http.method;
     let definedRoute = null;
 
@@ -110,6 +109,9 @@ class ApiFactory {
     // The replace handles cases where the route key is prepended with a method from API Gateway
     const routeKey = event.routeKey && event.routeKey.replace(/^[A-Z]+\s/, '') || event.resource;
 
+    const map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes, method, event.path);
+    const definedMethods = map && map.methods;
+
     // default to defined path when proxy is not specified.
     if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
       if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey][method]) {
@@ -119,10 +121,8 @@ class ApiFactory {
       }
     } else {
       // if it is a proxy path then then look up the proxied value.
-      let map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes, method, event.path);
       if (map) {
         definedRoute = map.value;
-        definedMethods = map.methods;
         delete event.pathParameters.proxy;
         event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
       }
