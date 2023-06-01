@@ -42,6 +42,7 @@ function getApi() {
   api.get('/v1/resources', spyMap['GET-PATH'] = sinon.spy(() => 'GET-PATH'));
   api.put('/v1/resources/{resourceUri}', spyMap['PUT-PATH'] = sinon.spy(() => 'PUT-PATH'));
   api.get('/v1/resources/{resourceUri}/users', spyMap['GET-SUBPATH'] = sinon.spy(() => 'GET-SUBPATH'));
+  api.get('/v1/resources/{altKey}/users/alt', spyMap['GET-ALT-KEY'] = sinon.spy(() => 'GET-ALT-KEY'));
 
   // Greedy match on the top for different method
   api.options('/accounts', spyMap['ABOVE-GREEDY'] = sinon.spy(() => 'ABOVE-GREEDY'));
@@ -204,6 +205,14 @@ describe('index.js', () => {
       expect(spyMap['GET-SUBPATH'].getCall(0).args[0].httpMethod).to.eql('GET');
       expect(spyMap['GET-SUBPATH'].getCall(0).args[0].pathParameters).to.eql({ resourceUri: 'resourceUri' });
     });
+    it('Validate GET /v1/resources/altKey/users/alt', async () => {
+      const output = await getApi().handler({ httpMethod: 'GET', resource: '/{proxy+}', path: '/v1/resources/altKey/users/alt',
+        pathParameters: { proxy: '/v1/resources/altKey/users/alt' } });
+      expect(output.body).to.equal('GET-ALT-KEY');
+      expect(spyMap['GET-ALT-KEY'].calledOnce).to.be.true;
+      expect(spyMap['GET-ALT-KEY'].getCall(0).args[0].httpMethod).to.eql('GET');
+      expect(spyMap['GET-ALT-KEY'].getCall(0).args[0].pathParameters).to.eql({ altKey: 'altKey' });
+    });
     it('PARTIAL-PROXY', async () => {
       const output = await getApi().handler({ httpMethod: 'GET', resource: '/partial/{collector+}', path: '/partial/lower/match', pathParameters: { collector: 'lower' } });
       expect(output.body).to.equal('PARTIAL-PROXY');
@@ -355,6 +364,14 @@ describe('index.js', () => {
       expect(spyMap['GET-SUBPATH'].calledOnce).to.be.true;
       expect(spyMap['GET-SUBPATH'].getCall(0).args[0].httpMethod).to.eql('GET');
       expect(spyMap['GET-SUBPATH'].getCall(0).args[0].pathParameters).to.eql({ resourceUri: 'resourceUri' });
+    });
+    it('Validate GET /v1/resources/altKey/users/alt', async () => {
+      const output = await getApi().handler({ httpMethod: 'GET', resource: '/v1/resources/{altKey}/users/alt', path: '/v1/resources/altKey/users/alt',
+        pathParameters: { altKey: 'altKey' } });
+      expect(output.body).to.equal('GET-ALT-KEY');
+      expect(spyMap['GET-ALT-KEY'].calledOnce).to.be.true;
+      expect(spyMap['GET-ALT-KEY'].getCall(0).args[0].httpMethod).to.eql('GET');
+      expect(spyMap['GET-ALT-KEY'].getCall(0).args[0].pathParameters).to.eql({ altKey: 'altKey' });
     });
     it('PARTIAL-PROXY', async () => {
       const output = await getApi().handler({ httpMethod: 'GET', resource: '/{proxy+}', path: '/partial/lower/match' });
