@@ -1,8 +1,8 @@
 export namespace OpenApi {
   export interface ApiOptions {
-      requestMiddleware?: (() => unknown) | undefined;
-      responseMiddleware?: (() => unknown) | undefined;
-      errorMiddleware?: (() => unknown) | undefined;
+      requestMiddleware?: ((event: object, context: object) => Promise<unknown>) | (() => unknown) | undefined;
+      responseMiddleware?: ((request: object, context: object) => Promise<unknown>) | (() => unknown) | undefined;
+      errorMiddleware?: ((event: object, error: object) => Promise<unknown>) | (() => unknown) | undefined;
   }
 
   export interface HttpMethodOptions {
