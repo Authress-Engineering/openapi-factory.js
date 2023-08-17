@@ -8,10 +8,9 @@ let apiFactory = null;
 
 class ApiFactory {
   constructor(options, overrideLogger = null) {
-    if (!apiFactory) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      apiFactory = this;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    apiFactory = this;
+
     this.Authorizer = null;
     this.requestMiddleware = options && options.requestMiddleware || (r => r);
     this.responseMiddleware = options && options.responseMiddleware || ((_, r) => r);
@@ -240,5 +239,9 @@ class ApiFactory {
     return await apiFactory.handlers.onEvent(originalEvent, context);
   }
 }
+
+ApiFactory.getInstance = function getInstance() {
+  return apiFactory;
+};
 
 module.exports = ApiFactory;
