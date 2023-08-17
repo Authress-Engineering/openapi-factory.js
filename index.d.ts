@@ -28,6 +28,11 @@ export class OpenApi {
    */
   getPathMap(): Record<string, Record<string, unknown>>;
 
+  /**
+   * @returns The matched route based on the method and the specified path.
+   */
+  resolveRoute(method: string, path: string): string;
+
   head(route: string, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
   head(route: string, options: OpenApi.HttpMethodOptions, handler: (req?: object) => (OpenApi.HttpResponse | Promise<OpenApi.HttpResponse>)): void;
 
