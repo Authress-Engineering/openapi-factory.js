@@ -92,6 +92,11 @@ class ApiFactory {
     return apiFactory.paths;
   }
 
+  resolveRoute(method, path) {
+    const routeData = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes, method, path);
+    return routeData && routeData.constructedRoute;
+  }
+
   convertEvent(event) {
     event.openApiOptions = event.openApiOptions || {};
     event.queryStringParameters = event.queryStringParameters || {};

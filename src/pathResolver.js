@@ -60,6 +60,7 @@ class PathResolver {
 
     let tokenList = [];
     let currentPointerInMapHierarchy = currentMap;
+    let constructedRoute = '';
     for (const token of pathTokens) {
       //
       if (!currentPointerInMapHierarchy) {
@@ -68,6 +69,7 @@ class PathResolver {
 
       if (token !== '*' && currentPointerInMapHierarchy[token]) {
         currentPointerInMapHierarchy = currentPointerInMapHierarchy[token];
+        constructedRoute += `/${token}`;
         continue;
       }
 
@@ -78,6 +80,7 @@ class PathResolver {
       if (currentPointerInMapHierarchy['*']) {
         tokenList.push(token === '' ? null : decodeURIComponentSafe(token));
         currentPointerInMapHierarchy = currentPointerInMapHierarchy['*'];
+        constructedRoute += '/*';
         continue;
       }
       currentPointerInMapHierarchy = null;
@@ -90,12 +93,14 @@ class PathResolver {
     let tokenMap = {};
     currentPointerInMapHierarchy._tokens ? currentPointerInMapHierarchy._tokens.map((token, index) => {
       tokenMap[token] = tokenList[index];
+      constructedRoute = constructedRoute.replace(/[/][*]/, `/{${token}}`).replace(/[/]$/, '');
     }) : [];
 
     if (currentPointerInMapHierarchy && currentPointerInMapHierarchy._methods) {
       return {
         value: currentPointerInMapHierarchy._methods[method] || currentPointerInMapHierarchy._methods.ANY,
         methods: Object.keys(currentPointerInMapHierarchy._methods).filter(m => !m.match('ANY')),
+        constructedRoute,
         tokens: tokenMap
       };
     }

@@ -206,6 +206,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           tokens: {},
+          constructedRoute: '/',
           methods: [method],
           value: expectedValue
         }
@@ -221,6 +222,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           tokens: {},
+          constructedRoute: '/resource',
           methods: [method],
           value: expectedValue
         }
@@ -236,6 +238,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           tokens: {},
+          constructedRoute: '/resource',
           methods: [method],
           value: expectedValue
         }
@@ -253,6 +256,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}',
           methods: [method],
           tokens: {
             token1: 'resourceId'
@@ -272,6 +276,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}',
           methods: [method],
           tokens: {
             token1: null
@@ -292,6 +297,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource',
           methods: [method],
           tokens: {}
         }
@@ -310,6 +316,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}',
           methods: [method],
           tokens: {
             token1: rawResourceTokenValue
@@ -334,6 +341,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResource/{token2}',
           methods: [method],
           tokens: {
             token1: 'resourceId',
@@ -358,6 +366,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResource/{token2}',
           methods: [method],
           tokens: {
             token1: null,
@@ -380,6 +389,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           methods: [method],
+          constructedRoute: '/resource/resourceId',
           tokens: {},
           value: expectedValue
         }
@@ -406,6 +416,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           methods: [method],
+          constructedRoute: '/',
           tokens: {},
           value: expectedValue
         }
@@ -420,6 +431,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           methods: [method],
+          constructedRoute: '/',
           tokens: {},
           value: expectedValue
         }
@@ -443,6 +455,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResource1',
           methods: [method],
           tokens: {
             token1: 'resourceId'
@@ -468,6 +481,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token2}/subResource2',
           methods: [method],
           tokens: {
             token2: 'resourceId'
@@ -492,6 +506,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResources/{proxy}',
           methods: [method],
           tokens: {
             token1: 'resourceId',
@@ -536,6 +551,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResource/{token2}',
           methods: [method],
           tokens: {
             token1: '*',
@@ -561,6 +577,7 @@ describe('pathResolver.js', () => {
         },
         expectedValue: {
           value: undefined,
+          constructedRoute: '/resource/{token1}/subResource/{token2}',
           methods: [otherMethod],
           tokens: {
             token1: '*',
