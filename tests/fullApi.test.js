@@ -66,6 +66,21 @@ function getApi() {
 }
 
 describe('index.js', () => {
+  describe('Ensure Prototype Pollution is blocked', () => {
+    it('Validate __proto__ path property', async () => {
+      try {
+        await getApi().handler({
+          httpMethod: 'GET',
+          resource: '/v1/users/{userId}',
+          path: '/v1/users/__proto__',
+          pathParameters: { userId: '__proto__' }
+        });
+        throw Error('Expected test to throw an error');
+      } catch (error) {
+        expect(error.code || error.message).to.eql('PrototypePollutionAttack');
+      }
+    });
+  });
   describe('Assuming everything is registered as a specific routes', () => {
     it('Validate / works', async () => {
       const output = await getApi().handler({ httpMethod: 'GET', resource: '/', path: '/' });

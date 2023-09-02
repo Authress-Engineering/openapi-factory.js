@@ -62,6 +62,9 @@ class PathResolver {
     let currentPointerInMapHierarchy = currentMap;
     let constructedRoute = '';
     for (const token of pathTokens) {
+      if (token === '__proto__') {
+        throw Error('PrototypePollutionAttack');
+      }
       //
       if (!currentPointerInMapHierarchy) {
         break;
