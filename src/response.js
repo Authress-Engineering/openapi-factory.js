@@ -1,10 +1,10 @@
 class Response {
   constructor(body, statusCode, headers) {
     let pullBody = body && (body.body || body.statusCode || body.headers);
-    this.body = pullBody ? body.body : body;
     this.statusCode = (pullBody ? body.statusCode : statusCode) || 200;
     let populatedHeaders = (pullBody ? body.headers : headers) || {};
     this.isBase64Encoded = (pullBody ? body.isBase64Encoded : false) || false;
+    this.body = this.statusCode === 204 ? undefined : (pullBody ? body.body : body);
 
     if (!this.body) {
       delete this.body;
