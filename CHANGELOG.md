@@ -3,7 +3,7 @@ This is the changelog for [OpenAPI Factory](readme.md).
 
 ## 5.4 ##
 * Invert the path map. This actually isn't a breaking change, but you are directly using the internals of this library, they are changing.
-* 204 response status codes shall never include the body.
+* 204 & 304 response status codes shall never include the body.
 
 ## 5.3 ##
 * Upgrade to node 14
