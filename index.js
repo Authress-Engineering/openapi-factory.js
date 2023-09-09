@@ -104,13 +104,18 @@ class ApiFactory {
     event.stageVariables = event.stageVariables || {};
     event.pathParameters = event.pathParameters || {};
 
-    const method = event.httpMethod || event.requestContext && event.requestContext.http && event.requestContext.http.method;
+    if (!event.requestContext) {
+      event.requestContext = {};
+    }
+    event.requestContext.authorizer = event.requestContext.authorizer || {};
+
+    const method = event.httpMethod || event.requestContext.http && event.requestContext.http.method;
     let definedRoute = null;
 
     const proxyPath = '/{proxy+}';
-    event.path = event.path || event.requestContext && event.requestContext.http && event.requestContext.http.path || event.requestContext.path;
+    event.path = event.path || event.requestContext.http && event.requestContext.http.path || event.requestContext.path;
     // Remove stage from Path
-    event.path = event.requestContext && event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
+    event.path = event.path.startsWith(`/${event.requestContext.stage}`) ? event.path.substring(event.requestContext.stage.length + 1) : event.path;
 
     // The replace handles cases where the route key is prepended with a method from API Gateway
     const routeKey = event.routeKey && event.routeKey.replace(/^[A-Z]+\s/, '') || event.resource;
@@ -193,12 +198,12 @@ class ApiFactory {
           if (error instanceof Resp) { return error; }
           if (error instanceof Error) {
             apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the runtime lambda function, check the implementation.', api: definedRoute, error: e });
-            return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
+            return new Resp({ title: 'Unexpected error', errorId: event.requestContext.requestId }, 500);
           }
           return new Resp(error, error && error.statusCode ? null : 500);
         } catch (middleE) {
           apiFactory.logger({ level: 'ERROR', title: 'Exception thrown by invocation of the error middleware, check the implementation.', api: definedRoute, error: e, middleware: middleE });
-          return new Resp({ title: 'Unexpected error', errorId: event.requestContext && event.requestContext.requestId }, 500);
+          return new Resp({ title: 'Unexpected error', errorId: event.requestContext.requestId }, 500);
         }
       }
     }
