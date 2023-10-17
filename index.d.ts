@@ -16,7 +16,7 @@ export namespace OpenApi {
   }
 }
 
-export class OpenApi {
+export default class OpenApi {
   constructor(options: OpenApi.ApiOptions, overrideLogger?: () => void);
 
   setAuthorizer(authorizerFunc: (req?: unknown) => Promise<unknown>): void;
