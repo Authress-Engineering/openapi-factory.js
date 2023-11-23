@@ -514,6 +514,42 @@ describe('pathResolver.js', () => {
           }
         }
       };
+
+      yield {
+        name: 'Find most specific proxy matcher',
+        path: '/resource/resourceId/subResources/subResource1/lowerResource',
+        inputMap: {
+          _tokens: ['proxy'],
+          _methods: { [method]: expectedValue },
+          _greedy: true,
+
+          resource: {
+            '*': {
+              _tokens: ['proxy'],
+              _methods: { [method]: expectedValue },
+              _greedy: true,
+
+              subResources: {
+                '*': {
+                  _tokens: ['token1', 'proxy'],
+                  _methods: { [method]: expectedValue },
+                  _greedy: true
+                }
+              }
+            }
+          }
+        },
+        expectedValue: {
+          value: expectedValue,
+          constructedRoute: '/resource/{token1}/subResources/{proxy}',
+          methods: [method],
+          tokens: {
+            token1: 'resourceId',
+            proxy: 'subResource1'
+          }
+        }
+      };
+
       yield {
         name: 'path with stage should return null',
         path: 'test/resource/resourceId/subResource1',

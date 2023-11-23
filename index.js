@@ -137,13 +137,11 @@ class ApiFactory {
       event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
     }
 
-    // either it is proxied and not defined or not defined, either way go to the proxy method.
+    // either it is proxied and not defined or not defined, either way go to the first proxy route available in the hierarchy.
     if (!definedRoute) {
-      if (apiFactory.Routes[proxyPath] && apiFactory.Routes[proxyPath][method]) {
-        definedRoute = apiFactory.Routes[proxyPath][method];
-      } else if (apiFactory.Routes[proxyPath] && apiFactory.Routes[proxyPath].ANY) {
-        definedRoute = apiFactory.Routes[proxyPath].ANY;
-      }
+      const fallbackRoutes = routeKey.split('/').map((_, index) => routeKey.split('/').slice(0, index + 1).join('/') + proxyPath).reverse();
+      definedRoute = fallbackRoutes.map(fallbackAttemptRoute => apiFactory.Routes[fallbackAttemptRoute]
+        && (apiFactory.Routes[fallbackAttemptRoute][method] || apiFactory.Routes[fallbackAttemptRoute].ANY)).find(r => r);
     }
 
     if (definedRoute) {
