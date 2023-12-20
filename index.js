@@ -123,18 +123,20 @@ class ApiFactory {
     const map = apiFactory.pathResolver.resolvePath(apiFactory.ProxyRoutes, method, event.path);
     const definedMethods = map && map.methods;
 
-    // default to defined path when proxy is not specified.
-    if (routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
+    if (map) {
+      // if it is a proxy path then then look up the proxied value.
+      definedRoute = map.value;
+      delete event.pathParameters.proxy;
+      event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
+    }
+
+    if (!definedRoute && routeKey.lastIndexOf(proxyPath) === -1 && routeKey !== '$default') {
+      // default to defined path when proxy is not specified.
       if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey][method]) {
         definedRoute = apiFactory.Routes[routeKey][method];
       } else if (apiFactory.Routes[routeKey] && apiFactory.Routes[routeKey].ANY) {
         definedRoute = apiFactory.Routes[routeKey].ANY;
       }
-    } else if (map) {
-      // if it is a proxy path then then look up the proxied value.
-      definedRoute = map.value;
-      delete event.pathParameters.proxy;
-      event.pathParameters = Object.assign({}, map.tokens, event.pathParameters);
     }
 
     // either it is proxied and not defined or not defined, either way go to the first proxy route available in the hierarchy.

@@ -1,6 +1,6 @@
 require('error-object-polyfill');
 const { describe, it, beforeEach, afterEach } = require('mocha');
-const chai = require('chai');
+const { use: chaiUse, expect } = require('chai');
 const { assert } = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
@@ -9,7 +9,7 @@ const PathResolver = require('../src/pathResolver');
 const Api = require('../index');
 const Response = require('../src/response');
 
-chai.use(sinonChai);
+chaiUse(sinonChai);
 
 let sandbox;
 beforeEach(() => { sandbox = sinon.createSandbox(); });
@@ -455,9 +455,9 @@ describe('index.js', () => {
       let expectedResult = { value: 5 };
       let api = new Api(null, noopFunction);
       api.get('/test', request => {
-        assert.equal(request.pathParameters, expectedPathParameters);
-        assert.equal(request.stageVariables, expectedStageVariables);
-        assert.equal(request.queryStringParameters, expectedQueryStringParameters);
+        expect(request.pathParameters).to.eql(expectedPathParameters);
+        expect(request.stageVariables).to.eql(expectedStageVariables);
+        expect(request.queryStringParameters).to.eql(expectedQueryStringParameters);
         return Promise.resolve({ body: expectedResult, statusCode: 201 });
       });
 

@@ -241,7 +241,7 @@ describe('index.js', () => {
       expect(spyMap['ANY-PROXY'].calledOnce).to.be.true;
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].httpMethod).to.eql('GET');
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].path).to.eql('/test');
-      expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ });
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ proxy: 'test' });
     });
   });
 
@@ -401,7 +401,7 @@ describe('index.js', () => {
       expect(spyMap['ANY-PROXY'].calledOnce).to.be.true;
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].httpMethod).to.eql('GET');
       expect(spyMap['ANY-PROXY'].getCall(0).args[0].path).to.eql('/test');
-      expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ });
+      expect(spyMap['ANY-PROXY'].getCall(0).args[0].pathParameters).to.eql({ proxy: 'test' });
     });
 
     it('Validate ANY works when the wrong method is picked', async () => {
